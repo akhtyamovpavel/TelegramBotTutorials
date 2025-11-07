@@ -1,0 +1,20 @@
+# Зависимости только для aiogram
+
+aiogram==3.15.0
+
+# Для работы с SQLite асинхронно (example_04)
+aiosqlite==0.20.0
+
+# Для работы с изображениями (example_07)
+Pillow==10.4.0
+
+# Опционально: для production
+# redis==5.0.0  # Для RedisStorage (FSM в production)
+# motor==3.3.0  # Для MongoStorage (FSM в production)
+
+# Опционально: для ИИ-моделей
+# easyocr==1.7.1  # OCR
+# openai-whisper==20231117  # Speech-to-Text
+# matplotlib==3.9.0  # Графики
+# torch==2.3.0  # Deep Learning
+# diffusers==0.28.0  # Stable Diffusion

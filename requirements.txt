@@ -1,0 +1,26 @@
+# Зависимости для всех примеров Telegram-ботов
+
+# aiogram - современный асинхронный фреймворк
+aiogram==3.15.0
+
+# python-telegram-bot - зрелая библиотека с большим сообществом
+python-telegram-bot==21.9
+
+# Для работы с SQLite асинхронно (aiogram example_04)
+aiosqlite==0.20.0
+
+# Для работы с изображениями (example_07)
+Pillow==10.4.0
+
+# Опционально для продвинутой работы (закомментировано по умолчанию):
+# matplotlib==3.9.0  # Графики и визуализация
+# opencv-python==4.10.0  # Обработка изображений
+# numpy==1.26.4  # Массивы для изображений
+# easyocr==1.7.1  # OCR (распознавание текста)
+# openai-whisper==20231117  # Speech-to-Text
+# torch==2.3.0  # PyTorch для deep learning
+# diffusers==0.28.0  # Stable Diffusion
+# transformers==4.41.0  # Hugging Face модели
+
+# Стандартные зависимости для обеих библиотек
+certifi>=2024.0.0

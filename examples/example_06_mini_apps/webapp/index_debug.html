@@ -1,0 +1,336 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+    <title>ИИ Генератор Настройки (DEBUG)</title>
+    <script src="https://telegram.org/js/telegram-web-app.js"></script>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Helvetica, Arial, sans-serif;
+            padding: 16px;
+            background-color: var(--tg-theme-bg-color, #ffffff);
+            color: var(--tg-theme-text-color, #000000);
+            min-height: 100vh;
+        }
+
+        .container {
+            max-width: 600px;
+            margin: 0 auto;
+        }
+
+        h1 {
+            font-size: 24px;
+            margin-bottom: 20px;
+            color: var(--tg-theme-text-color, #000000);
+        }
+
+        .debug-info {
+            background: #f0f0f0;
+            padding: 10px;
+            margin-bottom: 20px;
+            border-radius: 8px;
+            font-size: 12px;
+            font-family: monospace;
+            max-height: 200px;
+            overflow-y: auto;
+        }
+
+        .debug-info div {
+            margin: 2px 0;
+        }
+
+        .form-group {
+            margin-bottom: 20px;
+        }
+
+        label {
+            display: block;
+            margin-bottom: 8px;
+            font-weight: 500;
+            font-size: 14px;
+            color: var(--tg-theme-hint-color, #999999);
+        }
+
+        textarea, input, select {
+            width: 100%;
+            padding: 12px;
+            font-size: 16px;
+            border: 1px solid var(--tg-theme-hint-color, #cccccc);
+            border-radius: 8px;
+            background-color: var(--tg-theme-secondary-bg-color, #f0f0f0);
+            color: var(--tg-theme-text-color, #000000);
+            font-family: inherit;
+        }
+
+        textarea {
+            min-height: 100px;
+            resize: vertical;
+        }
+
+        input[type="range"] {
+            padding: 0;
+        }
+
+        .range-container {
+            display: flex;
+            align-items: center;
+            gap: 12px;
+        }
+
+        .range-value {
+            min-width: 40px;
+            text-align: center;
+            font-weight: bold;
+            color: var(--tg-theme-button-color, #3390ec);
+        }
+
+        button {
+            width: 100%;
+            padding: 12px;
+            background-color: var(--tg-theme-button-color, #3390ec);
+            color: var(--tg-theme-button-text-color, #ffffff);
+            border: none;
+            border-radius: 8px;
+            font-size: 16px;
+            cursor: pointer;
+            margin-top: 10px;
+        }
+
+        button:active {
+            opacity: 0.7;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <h1>🎨 Настройки генерации (DEBUG)</h1>
+
+        <div class="debug-info" id="debug-info">
+            <div><strong>📊 DEBUG CONSOLE:</strong></div>
+        </div>
+
+        <div class="form-group">
+            <label for="prompt">📝 Промпт (описание изображения)</label>
+            <textarea id="prompt" placeholder="Например: beautiful sunset over mountains, detailed, 4k">beautiful landscape, mountains, sunset, detailed</textarea>
+        </div>
+
+        <div class="form-group">
+            <label for="model">🤖 Модель</label>
+            <select id="model">
+                <option value="stable-diffusion-1.5">Stable Diffusion 1.5</option>
+                <option value="stable-diffusion-xl">Stable Diffusion XL</option>
+                <option value="dalle-3">DALL-E 3</option>
+                <option value="midjourney-style">Midjourney Style</option>
+            </select>
+        </div>
+
+        <div class="form-group">
+            <label for="num_images">🖼️ Количество вариантов</label>
+            <div class="range-container">
+                <input type="range" id="num_images" min="1" max="4" value="2"
+                       oninput="updateRangeValue('num_images', 'num_images_value')">
+                <span class="range-value" id="num_images_value">2</span>
+            </div>
+        </div>
+
+        <div class="form-group">
+            <label for="steps">🔄 Steps (качество)</label>
+            <div class="range-container">
+                <input type="range" id="steps" min="10" max="100" value="30" step="5"
+                       oninput="updateRangeValue('steps', 'steps_value')">
+                <span class="range-value" id="steps_value">30</span>
+            </div>
+        </div>
+
+        <div class="form-group">
+            <label for="cfg_scale">⚖️ CFG Scale (точность)</label>
+            <div class="range-container">
+                <input type="range" id="cfg_scale" min="1" max="20" value="7" step="0.5"
+                       oninput="updateRangeValue('cfg_scale', 'cfg_value')">
+                <span class="range-value" id="cfg_value">7</span>
+            </div>
+        </div>
+
+        <div class="form-group">
+            <label for="size">📐 Размер</label>
+            <select id="size">
+                <option value="512x512">512x512 (быстро)</option>
+                <option value="768x768" selected>768x768 (стандарт)</option>
+                <option value="1024x1024">1024x1024 (HD)</option>
+            </select>
+        </div>
+
+        <button onclick="testSendData()">🧪 ТЕСТ: Отправить данные</button>
+    </div>
+
+    <script>
+        // Функция для вывода в debug консоль
+        function debugLog(message, isError = false) {
+            const debugDiv = document.getElementById('debug-info');
+            const timestamp = new Date().toLocaleTimeString();
+            const color = isError ? 'red' : 'green';
+
+            const logEntry = document.createElement('div');
+            logEntry.style.color = color;
+            logEntry.textContent = `[${timestamp}] ${message}`;
+
+            debugDiv.appendChild(logEntry);
+            debugDiv.scrollTop = debugDiv.scrollHeight;
+
+            // Также выводим в консоль браузера
+            if (isError) {
+                console.error(message);
+            } else {
+                console.log(message);
+            }
+        }
+
+        // Инициализация
+        debugLog('🚀 Скрипт запущен');
+
+        // Проверяем наличие Telegram WebApp API
+        if (typeof window.Telegram === 'undefined') {
+            debugLog('❌ ОШИБКА: window.Telegram не определен!', true);
+            debugLog('❌ Возможно WebApp открыт не через Telegram!', true);
+        } else {
+            debugLog('✅ window.Telegram найден');
+
+            if (typeof window.Telegram.WebApp === 'undefined') {
+                debugLog('❌ ОШИБКА: window.Telegram.WebApp не определен!', true);
+            } else {
+                debugLog('✅ window.Telegram.WebApp найден');
+            }
+        }
+
+        // Инициализация Telegram WebApp
+        let tg = window.Telegram?.WebApp;
+
+        if (tg) {
+            debugLog('✅ Telegram WebApp инициализирован');
+
+            // Разворачиваем WebApp на весь экран
+            tg.expand();
+            debugLog('✅ WebApp развернут на весь экран');
+
+            // Готовность WebApp
+            tg.ready();
+            debugLog('✅ WebApp готов к работе');
+
+            // Проверяем доступность sendData
+            if (typeof tg.sendData === 'function') {
+                debugLog('✅ tg.sendData доступен');
+            } else {
+                debugLog('❌ ОШИБКА: tg.sendData недоступен!', true);
+            }
+
+            // Отображаем информацию о пользователе
+            const user = tg.initDataUnsafe?.user;
+            if (user) {
+                debugLog(`👤 Пользователь: ${user.first_name} (ID: ${user.id})`);
+            } else {
+                debugLog('⚠️ Данные пользователя недоступны', true);
+            }
+
+            // Настраиваем главную кнопку
+            try {
+                tg.MainButton.setText('🎨 Сгенерировать');
+                tg.MainButton.show();
+                tg.MainButton.onClick(testSendData);
+                debugLog('✅ Главная кнопка настроена');
+            } catch (e) {
+                debugLog(`❌ Ошибка настройки кнопки: ${e.message}`, true);
+            }
+        } else {
+            debugLog('❌ КРИТИЧЕСКАЯ ОШИБКА: tg не инициализирован!', true);
+            debugLog('❌ Убедитесь что WebApp открыт через Telegram!', true);
+        }
+
+        // Обновление значения range input
+        function updateRangeValue(inputId, valueId) {
+            const value = document.getElementById(inputId).value;
+            document.getElementById(valueId).textContent = value;
+        }
+
+        // Тестовая функция отправки данных
+        function testSendData() {
+            debugLog('🔵 testSendData() вызвана');
+
+            if (!tg) {
+                debugLog('❌ ОШИБКА: tg не определен!', true);
+                alert('ОШИБКА: WebApp не инициализирован. Откройте через Telegram!');
+                return;
+            }
+
+            try {
+                // Собираем данные
+                const data = {
+                    prompt: document.getElementById('prompt').value,
+                    model: document.getElementById('model').value,
+                    num_images: parseInt(document.getElementById('num_images').value),
+                    steps: parseInt(document.getElementById('steps').value),
+                    cfg_scale: parseFloat(document.getElementById('cfg_scale').value),
+                    size: document.getElementById('size').value
+                };
+
+                debugLog(`📦 Данные собраны: ${Object.keys(data).length} полей`);
+                debugLog(`   prompt: "${data.prompt}"`);
+                debugLog(`   model: ${data.model}`);
+                debugLog(`   num_images: ${data.num_images}`);
+                debugLog(`   steps: ${data.steps}`);
+                debugLog(`   cfg_scale: ${data.cfg_scale}`);
+                debugLog(`   size: ${data.size}`);
+
+                // Валидация
+                if (!data.prompt.trim()) {
+                    debugLog('⚠️ Промпт пустой, показываем alert', true);
+                    tg.showAlert('Пожалуйста, введите промпт!');
+                    return;
+                }
+
+                debugLog('✅ Валидация пройдена');
+
+                // Преобразуем в JSON
+                const jsonData = JSON.stringify(data);
+                debugLog(`📝 JSON данные (длина: ${jsonData.length})`);
+                debugLog(`   ${jsonData.substring(0, 100)}...`);
+
+                // Проверяем доступность sendData
+                if (typeof tg.sendData !== 'function') {
+                    debugLog('❌ ОШИБКА: tg.sendData не является функцией!', true);
+                    alert('ОШИБКА: sendData недоступен!');
+                    return;
+                }
+
+                // Отправляем данные боту
+                debugLog('📤 Вызываем tg.sendData()...');
+                tg.sendData(jsonData);
+                debugLog('✅ tg.sendData() вызван успешно!');
+                debugLog('✅ Данные отправлены боту!');
+
+                // WebApp должен закрыться автоматически после sendData
+                debugLog('⏳ Ожидаем закрытия WebApp...');
+
+            } catch (error) {
+                debugLog(`❌ КРИТИЧЕСКАЯ ОШИБКА: ${error.message}`, true);
+                debugLog(`   Stack: ${error.stack}`, true);
+                alert(`ОШИБКА: ${error.message}`);
+            }
+        }
+
+        // Инициализация значений range inputs
+        updateRangeValue('num_images', 'num_images_value');
+        updateRangeValue('steps', 'steps_value');
+        updateRangeValue('cfg_scale', 'cfg_value');
+
+        debugLog('✅ Инициализация завершена');
+        debugLog('👉 Нажмите кнопку "ТЕСТ: Отправить данные"');
+    </script>
+</body>
+</html>

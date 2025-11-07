@@ -1,0 +1,19 @@
+# Зависимости только для python-telegram-bot
+
+python-telegram-bot==21.9
+
+# Для работы с изображениями (example_07)
+Pillow==10.4.0
+
+# sqlite3 входит в стандартную библиотеку Python, не требует установки
+
+# Опционально: для production
+# psycopg2-binary==2.9.9  # Для PostgreSQL
+# redis==5.0.0  # Для кеширования
+
+# Опционально: для ИИ-моделей
+# easyocr==1.7.1  # OCR
+# openai-whisper==20231117  # Speech-to-Text
+# matplotlib==3.9.0  # Графики
+# torch==2.3.0  # Deep Learning
+# diffusers==0.28.0  # Stable Diffusion
