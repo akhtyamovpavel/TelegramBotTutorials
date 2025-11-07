@@ -1,129 +1,131 @@
-# Разработка Telegram-ботов на Python
+# Telegram Bot Development with Python
 
-Комплексный обучающий гайд по созданию Telegram-ботов с использованием двух популярных библиотек: **aiogram** и **python-telegram-bot**.
+**[Русская версия / Russian version](./README_RU.md)**
 
-## 📚 Содержание курса
+A comprehensive educational guide for creating Telegram bots using two popular libraries: **aiogram** and **python-telegram-bot**.
 
-Этот репозиторий содержит полный курс по разработке Telegram-ботов от простого к сложному, с примерами на обоих фреймворках.
+## 📚 Course Content
 
-### 🎯 Примеры ботов (по возрастанию сложности)
+This repository contains a complete course on Telegram bot development from simple to complex, with examples for both frameworks.
 
-1. **[Example 1: Echo Bot](./examples/example_01_echo_bot/)** - Простейший бот
-   - Основы структуры
-   - Обработчики команд и сообщений
-   - Запуск polling
+### 🎯 Bot Examples (ordered by complexity)
 
-2. **[Example 2: Inline Keyboard](./examples/example_02_inline_keyboard/)** - Интерактивные кнопки
-   - Создание inline-клавиатур
-   - Обработка callback queries
-   - Редактирование сообщений
+1. **[Example 1: Echo Bot](./examples/example_01_echo_bot/)** - Simplest bot
+   - Basic structure
+   - Command and message handlers
+   - Running with polling
 
-3. **[Example 3: Reply Keyboard](./examples/example_03_reply_keyboard/)** - Обычные кнопки
-   - ReplyKeyboardMarkup - постоянная клавиатура
-   - Запрос геолокации и контакта
-   - Многоуровневые меню
+2. **[Example 2: Inline Keyboard](./examples/example_02_inline_keyboard/)** - Interactive buttons
+   - Creating inline keyboards
+   - Handling callback queries
+   - Editing messages
 
-4. **[Example 4: FSM States](./examples/example_04_fsm_states/)** - Машина состояний
-   - Многошаговые диалоги
-   - Хранение данных между сообщениями
-   - Валидация пользовательского ввода
+3. **[Example 3: Reply Keyboard](./examples/example_03_reply_keyboard/)** - Regular buttons
+   - ReplyKeyboardMarkup - persistent keyboard
+   - Requesting location and contact
+   - Multi-level menus
 
-5. **[Example 5: Database](./examples/example_05_database/)** - Работа с БД
-   - Интеграция SQLite
-   - CRUD операции
-   - Middleware (aiogram) / глобальный объект (PTB)
+4. **[Example 4: FSM States](./examples/example_04_fsm_states/)** - State machine
+   - Multi-step dialogs
+   - Storing data between messages
+   - User input validation
 
-6. **[Example 6: Telegram Mini Apps (WebApp)](./examples/example_06_mini_apps/)** - Веб-приложения в Telegram
-   - Интерактивные веб-интерфейсы
-   - WebAppInfo и кнопки с WebApp
-   - Получение данных через web_app_data
+5. **[Example 5: Database](./examples/example_05_database/)** - Working with databases
+   - SQLite integration
+   - CRUD operations
+   - Middleware (aiogram) / global object (PTB)
+
+6. **[Example 6: Telegram Mini Apps (WebApp)](./examples/example_06_mini_apps/)** - Web applications in Telegram
+   - Interactive web interfaces
+   - WebAppInfo and WebApp buttons
+   - Receiving data via web_app_data
    - Telegram WebApp JavaScript API
 
-7. **[Example 7: File Upload](./examples/example_07_file_upload/)** - Загрузка файлов для ИИ
-   - Прием фото, документов, аудио, видео
-   - Скачивание файлов на сервер
-   - Интеграция с OCR, Speech-to-Text, NLP
+7. **[Example 7: File Upload](./examples/example_07_file_upload/)** - File uploads for AI
+   - Receiving photos, documents, audio, video
+   - Downloading files to server
+   - Integration with OCR, Speech-to-Text, NLP
 
-8. **[Example 8: Image Generation](./examples/example_08_image_generation/)** - Генерация изображений
-   - Различные способы отправки изображений
-   - Работа с PIL/Pillow
-   - Интеграция с Stable Diffusion, DALL-E, Matplotlib
+8. **[Example 8: Image Generation](./examples/example_08_image_generation/)** - Image generation
+   - Different ways to send images
+   - Working with PIL/Pillow
+   - Integration with Stable Diffusion, DALL-E, Matplotlib
 
-9. **[Example 9: Media Group Albums](./examples/example_09_media_group_albums/)** - Альбомы (множественная загрузка)
-   - Отправка альбомов из нескольких изображений
+9. **[Example 9: Media Group Albums](./examples/example_09_media_group_albums/)** - Albums (multiple uploads)
+   - Sending albums with multiple images
    - MediaGroupBuilder (aiogram)
-   - Обработка альбомов от пользователей
-   - Группировка по media_group_id
+   - Handling albums from users
+   - Grouping by media_group_id
 
-10. **[Example 10: Telegram Payments](./examples/example_10_telegram_payments/)** - Платежи за Telegram Stars
-    - Создание инвойсов для оплаты
-    - Pre-checkout query и successful payment
-    - Возврат средств (refund)
-    - Монетизация ИИ-функций
+10. **[Example 10: Telegram Payments](./examples/example_10_telegram_payments/)** - Payments with Telegram Stars
+    - Creating invoices for payment
+    - Pre-checkout query and successful payment
+    - Refunds
+    - Monetizing AI features
 
-11. **[Example 11: WebHook Deployment](./examples/example_11_webhook/)** - Production deployment с webhook
-    - WebHook вместо polling
-    - Настройка HTTPS и SSL
-    - Nginx как reverse proxy
+11. **[Example 11: WebHook Deployment](./examples/example_11_webhook/)** - Production deployment with webhook
+    - WebHook instead of polling
+    - HTTPS and SSL setup
+    - Nginx as reverse proxy
     - Docker deployment
     - VPS, Heroku, Railway, Render
 
-## 🚀 Быстрый старт
+## 🚀 Quick Start
 
-### Требования
+### Requirements
 
 - Python 3.9+
 - pip
 
-### Установка зависимостей
+### Installing Dependencies
 
-Выберите один из фреймворков:
+Choose one of the frameworks:
 
 ```bash
-# Для aiogram
+# For aiogram
 pip install -r requirements-aiogram.txt
 
-# Для python-telegram-bot
+# For python-telegram-bot
 pip install -r requirements-ptb.txt
 
-# Или установите оба
+# Or install both
 pip install -r requirements.txt
 ```
 
-### Создание бота
+### Creating a Bot
 
-1. Найдите [@BotFather](https://t.me/BotFather) в Telegram
-2. Отправьте команду `/newbot`
-3. Следуйте инструкциям для получения токена
-4. Сохраните токен в переменную окружения:
+1. Find [@BotFather](https://t.me/BotFather) in Telegram
+2. Send the command `/newbot`
+3. Follow the instructions to get your token
+4. Save the token as an environment variable:
 
 ```bash
 export BOT_TOKEN="your_bot_token_here"
 ```
 
-### Запуск примера
+### Running an Example
 
 ```bash
-# aiogram версия
+# aiogram version
 python examples/example_01_echo_bot/aiogram/bot.py
 
-# python-telegram-bot версия
+# python-telegram-bot version
 python examples/example_01_echo_bot/python_telegram_bot/bot.py
 ```
 
-## 📁 Структура проекта
+## 📁 Project Structure
 
 ```
 TelegramBot/
-├── LECTURE.md                          # Основная лекция
-├── README.md                           # Этот файл
-├── requirements.txt                    # Все зависимости
-├── requirements-aiogram.txt            # Только aiogram
-├── requirements-ptb.txt                # Только python-telegram-bot
+├── LECTURE.md                          # Main lecture materials
+├── README.md                           # This file
+├── requirements.txt                    # All dependencies
+├── requirements-aiogram.txt            # Only aiogram
+├── requirements-ptb.txt                # Only python-telegram-bot
 │
 └── examples/
     ├── example_01_echo_bot/
-    │   ├── README.md                   # Описание примера
+    │   ├── README.md                   # Example description
     │   ├── aiogram/
     │   │   └── bot.py
     │   └── python_telegram_bot/
@@ -155,11 +157,11 @@ TelegramBot/
     │   ├── aiogram/
     │   │   ├── bot.py
     │   │   ├── database.py
-    │   │   └── users.db (создается автоматически)
+    │   │   └── users.db (created automatically)
     │   └── python_telegram_bot/
     │       ├── bot.py
     │       ├── database.py
-    │       └── users.db (создается автоматически)
+    │       └── users.db (created automatically)
     │
     ├── example_06_mini_apps/
     │   ├── README.md
@@ -191,62 +193,70 @@ TelegramBot/
     │   └── python_telegram_bot/
     │       └── bot.py
     │
-    └── example_10_telegram_payments/
+    ├── example_10_telegram_payments/
+    │   ├── README.md
+    │   ├── aiogram/
+    │   │   └── bot.py
+    │   └── python_telegram_bot/
+    │       └── bot.py
+    │
+    └── example_11_webhook/
         ├── README.md
         ├── aiogram/
-        │   └── bot.py
+        │   └── bot_webhook.py
         └── python_telegram_bot/
-            └── bot.py
+            └── bot_webhook.py
 ```
 
-## 🔗 Полезные ссылки
+## 🔗 Useful Links
 
 ### aiogram
-- [Официальная документация](https://docs.aiogram.dev/)
+- [Official Documentation](https://docs.aiogram.dev/)
 - [GitHub](https://github.com/aiogram/aiogram)
-- [Русскоязычное сообщество](https://t.me/aiogram)
+- [Community Chat](https://t.me/aiogram)
 
 ### python-telegram-bot
-- [Официальная документация](https://docs.python-telegram-bot.org/)
+- [Official Documentation](https://docs.python-telegram-bot.org/)
 - [GitHub](https://github.com/python-telegram-bot/python-telegram-bot)
-- [Wiki с примерами](https://github.com/python-telegram-bot/python-telegram-bot/wiki)
+- [Wiki with Examples](https://github.com/python-telegram-bot/python-telegram-bot/wiki)
 
 ### Telegram Bot API
-- [Официальная документация API](https://core.telegram.org/bots/api)
-- [BotFather](https://t.me/BotFather) - создание ботов
+- [Official API Documentation](https://core.telegram.org/bots/api)
+- [BotFather](https://t.me/BotFather) - create bots
 - [Telegram Bots Guide](https://core.telegram.org/bots)
 
-## 💡 Дополнительные темы
+## 💡 Advanced Topics
 
-После изучения основ рекомендуем ознакомиться с:
+After learning the basics, we recommend exploring:
 
-1. **Webhook** вместо polling
-2. **Docker** для деплоя
-3. **Redis** для хранения состояний
-4. **PostgreSQL** для production БД
-5. **Логирование и мониторинг**
-6. **Тестирование** ботов
+1. **Webhook** instead of polling
+2. **Docker** for deployment
+3. **Redis** for state storage
+4. **PostgreSQL** for production databases
+5. **Logging and monitoring**
+6. **Bot testing**
 7. **CI/CD** pipeline
-8. **Paid Media** - платный контент (изображения, видео)
-9. **Inline режим** - inline queries
-10. **Bot API Server** - собственный Bot API сервер
+8. **Paid Media** - paid content (images, video)
+9. **Inline mode** - inline queries
+10. **Bot API Server** - self-hosted Bot API server
+11. **Webhook** - webhook for deployment
 
-## 🤝 Вклад в проект
+## 🤝 Contributing
 
-Если вы нашли ошибку или хотите улучшить материал:
+If you found an error or want to improve the material:
 
-1. Создайте Issue с описанием проблемы
-2. Предложите Merge Request с исправлениями
-3. Поделитесь своими идеями
+1. Create an Issue describing the problem
+2. Suggest a Pull Request with fixes
+3. Share your ideas
 
-## 📝 Лицензия
+## 📝 License
 
-Этот образовательный материал предоставляется "как есть" для свободного использования в образовательных целях.
+This educational material is provided "as is" for free use in educational purposes.
 
-## ✨ Авторы
+## ✨ Authors
 
-Обучающий гайд разработан для студентов НИУ ВШЭ, направление "Искусственный интеллект".
+This educational guide was developed for students of HSE University, AI program.
 
 ---
 
-**Удачи в изучении разработки Telegram-ботов!** 🚀🤖
+**Good luck learning Telegram bot development!** 🚀🤖

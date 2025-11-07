@@ -1,15 +1,17 @@
-# 🚀 Быстрый старт: WebHook бот за 5 минут
+# 🚀 Quick Start: WebHook Bot in 5 Minutes
 
-Этот гайд поможет запустить webhook бота локально с помощью ngrok.
+**[🇷🇺 Русская версия / Russian version](./QUICKSTART_RU.md)**
 
-## Шаг 1: Установите зависимости
+This guide will help you run a webhook bot locally using ngrok.
+
+## Step 1: Install Dependencies
 
 ```bash
-cd aiogram  # или python_telegram_bot
+cd aiogram  # or python_telegram_bot
 pip install -r requirements.txt
 ```
 
-## Шаг 2: Установите ngrok
+## Step 2: Install ngrok
 
 ### macOS
 ```bash
@@ -21,132 +23,132 @@ brew install ngrok
 # Ubuntu/Debian
 sudo snap install ngrok
 
-# Или скачайте:
+# Or download:
 wget https://bin.equinox.io/c/bNyj1mQVY4c/ngrok-v3-stable-linux-amd64.tgz
 tar xvzf ngrok-v3-stable-linux-amd64.tgz
 sudo mv ngrok /usr/local/bin/
 ```
 
 ### Windows
-Скачайте с https://ngrok.com/download
+Download from https://ngrok.com/download
 
-## Шаг 3: Получите бот токен
+## Step 3: Get Bot Token
 
-1. Найдите [@BotFather](https://t.me/BotFather) в Telegram
-2. Отправьте `/newbot`
-3. Следуйте инструкциям
-4. Скопируйте токен (например: `123456789:ABCdefGHIjklMNOpqrsTUVwxyz`)
+1. Find [@BotFather](https://t.me/BotFather) in Telegram
+2. Send `/newbot`
+3. Follow instructions
+4. Copy token (e.g., `123456789:ABCdefGHIjklMNOpqrsTUVwxyz`)
 
-## Шаг 4: Запустите бота
+## Step 4: Run the Bot
 
-### Терминал 1: Запустите бота
+### Terminal 1: Start the bot
 
 ```bash
-cd aiogram  # или python_telegram_bot
+cd aiogram  # or python_telegram_bot
 
-export BOT_TOKEN="123456789:ABCdefGHIjklMNOpqrsTUVwxyz"  # ← Ваш токен
-export WEBHOOK_HOST="https://temp.ngrok-free.app"        # ← Заменим на шаге 6
+export BOT_TOKEN="123456789:ABCdefGHIjklMNOpqrsTUVwxyz"  # ← Your token
+export WEBHOOK_HOST="https://temp.ngrok-free.app"        # ← Will update in step 6
 export WEBHOOK_PATH="/webhook"
 export WEBAPP_PORT="8000"
 
 python bot_webhook.py
 ```
 
-Вы увидите:
+You'll see:
 ```
-🚀 Запуск WebHook бота...
+🚀 Starting WebHook bot...
 📍 Webhook URL: https://temp.ngrok-free.app/webhook
-❌ Ошибка установки webhook!  # ← Это нормально, URL еще не работает
+❌ Failed to set webhook!  # ← This is normal, URL doesn't work yet
 ```
 
-**Остановите бота (Ctrl+C) - мы вернемся к нему**
+**Stop the bot (Ctrl+C) - we'll return to it**
 
-### Терминал 2: Запустите ngrok
+### Terminal 2: Start ngrok
 
 ```bash
 ngrok http 8000
 ```
 
-Вы увидите:
+You'll see:
 ```
 Session Status                online
 Account                       user@example.com
 Forwarding                    https://abc123.ngrok-free.app -> http://localhost:8000
 ```
 
-**Скопируйте HTTPS URL** (например: `https://abc123.ngrok-free.app`)
+**Copy the HTTPS URL** (e.g., `https://abc123.ngrok-free.app`)
 
-## Шаг 5: Обновите WEBHOOK_HOST
+## Step 5: Update WEBHOOK_HOST
 
-### Вернитесь в Терминал 1:
+### Return to Terminal 1:
 
 ```bash
-export WEBHOOK_HOST="https://abc123.ngrok-free.app"  # ← Ваш ngrok URL
+export WEBHOOK_HOST="https://abc123.ngrok-free.app"  # ← Your ngrok URL
 
 python bot_webhook.py
 ```
 
-Теперь вы должны увидеть:
+Now you should see:
 ```
-🚀 Запуск WebHook бота...
+🚀 Starting WebHook bot...
 📍 Webhook URL: https://abc123.ngrok-free.app/webhook
-✅ Webhook успешно установлен!
+✅ Webhook successfully set!
 📊 Webhook info:
    URL: https://abc123.ngrok-free.app/webhook
    Pending updates: 0
-🌐 Веб-сервер слушает на 0.0.0.0:8000
-🎯 Telegram будет отправлять обновления на: https://abc123.ngrok-free.app/webhook
+🌐 Web server listening on 0.0.0.0:8000
+🎯 Telegram will send updates to: https://abc123.ngrok-free.app/webhook
 ```
 
-## Шаг 6: Протестируйте бота
+## Step 6: Test the Bot
 
-Откройте Telegram и найдите вашего бота:
+Open Telegram and find your bot:
 
-1. Отправьте `/start`
+1. Send `/start`
    ```
-   👋 Бот работает через WebHook!
+   👋 Bot is running via WebHook!
 
-   Это значит что Telegram отправляет обновления напрямую на наш сервер...
+   This means Telegram sends updates directly to our server...
    ```
 
-2. Отправьте `/status`
+2. Send `/status`
    ```
-   📊 Статус бота
+   📊 Bot Status
 
    URL: https://abc123.ngrok-free.app/webhook
    Pending updates: 0
-   Last error: Нет ошибок
+   Last error: No errors
    ```
 
-3. Отправьте любое сообщение
+3. Send any message
    ```
-   📨 Получено сообщение:
+   📨 Received message:
 
-   Привет!
+   Hello!
 
-   💡 Это демонстрирует что WebHook работает!
+   💡 This demonstrates that WebHook is working!
    ```
 
-## ✅ Готово!
+## ✅ Done!
 
-Ваш бот работает через webhook!
+Your bot is working via webhook!
 
-**Что происходит:**
-1. Вы отправляете сообщение в Telegram
-2. Telegram мгновенно отправляет HTTPS POST на `https://abc123.ngrok-free.app/webhook`
-3. Ngrok проксирует запрос на `http://localhost:8000/webhook`
-4. Ваш бот обрабатывает обновление
-5. Бот отправляет ответ
+**What's happening:**
+1. You send a message in Telegram
+2. Telegram instantly sends HTTPS POST to `https://abc123.ngrok-free.app/webhook`
+3. Ngrok proxies the request to `http://localhost:8000/webhook`
+4. Your bot processes the update
+5. Bot sends response
 
-## 🔍 Проверка webhook
+## 🔍 Verify Webhook
 
-### Проверьте webhook info через API:
+### Check webhook info via API:
 
 ```bash
 curl https://api.telegram.org/bot<YOUR_TOKEN>/getWebhookInfo
 ```
 
-Должно показать:
+Should show:
 ```json
 {
   "ok": true,
@@ -159,48 +161,48 @@ curl https://api.telegram.org/bot<YOUR_TOKEN>/getWebhookInfo
 }
 ```
 
-### Посмотрите логи ngrok:
+### View ngrok logs:
 
-В терминале с ngrok вы увидите входящие запросы от Telegram:
+In the terminal with ngrok you'll see incoming requests from Telegram:
 ```
 POST /webhook  200 OK
 POST /webhook  200 OK
 ```
 
-## 🐛 Проблемы?
+## 🐛 Problems?
 
-### Бот не получает сообщения
+### Bot not receiving messages
 
 ```bash
-# Проверьте что бот запущен
-# Терминал 1 должен показывать: "Веб-сервер слушает на 0.0.0.0:8000"
+# Check bot is running
+# Terminal 1 should show: "Web server listening on 0.0.0.0:8000"
 
-# Проверьте что ngrok работает
-# Терминал 2 должен показывать: "Session Status: online"
+# Check ngrok is working
+# Terminal 2 should show: "Session Status: online"
 
-# Проверьте webhook info
+# Check webhook info
 curl https://api.telegram.org/bot<TOKEN>/getWebhookInfo
 ```
 
-### SSL ошибки
+### SSL errors
 
-Ngrok **автоматически** предоставляет валидный SSL сертификат. Если есть ошибки SSL - проверьте что используете **HTTPS** URL из ngrok (не HTTP).
+Ngrok **automatically** provides a valid SSL certificate. If there are SSL errors - check that you're using **HTTPS** URL from ngrok (not HTTP).
 
-### Ошибка "Wrong response from the webhook"
+### Error "Wrong response from the webhook"
 
-Убедитесь что бот отвечает `200 OK` в течение 60 секунд. Проверьте логи бота.
+Make sure bot responds with `200 OK` within 60 seconds. Check bot logs.
 
-## 🎓 Следующие шаги
+## 🎓 Next Steps
 
-После того как webhook заработал локально:
+After webhook works locally:
 
-1. **[DEPLOYMENT.md](./DEPLOYMENT.md)** - Разверните на production сервере
-2. **[COMPARISON.md](./COMPARISON.md)** - Изучите различия между polling и webhook
-3. **[README.md](./README.md)** - Подробная документация
+1. **[DEPLOYMENT.md](./DEPLOYMENT.md)** - Deploy on production server
+2. **[COMPARISON.md](./COMPARISON.md)** - Study differences between polling and webhook
+3. **[README.md](./README.md)** - Detailed documentation
 
-## 💡 Совет
+## 💡 Tip
 
-Для разработки используйте **polling** (проще), а webhook оставьте для **production**. Чтобы переключаться между ними:
+For development use **polling** (easier), and save webhook for **production**. To switch between them:
 
 ```python
 import os
@@ -215,4 +217,6 @@ else:
 
 ---
 
-**Готово!** Теперь вы знаете как работать с webhook! 🎉
+**Done!** Now you know how to work with webhooks! 🎉
+
+**[🇷🇺 Русская версия / Russian version](./QUICKSTART_RU.md)**

@@ -1,10 +1,12 @@
-# 🚀 Подробное руководство по развертыванию WebHook бота
+# 🚀 Comprehensive Deployment Guide for WebHook Bots
 
-Это руководство покрывает различные способы развертывания Telegram бота с webhook.
+**[🇷🇺 Русская версия / Russian version](./DEPLOYMENT_RU.md)**
 
-## 📋 Содержание
+This guide covers various ways to deploy a Telegram bot with webhook.
 
-1. [Локальное тестирование с Ngrok](#1-локальное-тестирование-с-ngrok)
+## 📋 Contents
+
+1. [Local Testing with Ngrok](#1-local-testing-with-ngrok)
 2. [VPS (DigitalOcean, Hetzner, Linode)](#2-vps-digitalocean-hetzner-linode)
 3. [Docker Deployment](#3-docker-deployment)
 4. [Heroku](#4-heroku)
@@ -13,11 +15,11 @@
 
 ---
 
-## 1. Локальное тестирование с Ngrok
+## 1. Local Testing with Ngrok
 
-**Используйте для**: Разработки и быстрого тестирования
+**Use for**: Development and quick testing
 
-### Шаг 1: Установите Ngrok
+### Step 1: Install Ngrok
 
 ```bash
 # macOS
@@ -26,13 +28,13 @@ brew install ngrok
 # Linux
 snap install ngrok
 
-# Или скачайте с https://ngrok.com/download
+# Or download from https://ngrok.com/download
 ```
 
-### Шаг 2: Запустите бота
+### Step 2: Run the Bot
 
 ```bash
-cd aiogram  # или python_telegram_bot
+cd aiogram  # or python_telegram_bot
 pip install -r requirements.txt
 
 export BOT_TOKEN="your_token_here"
@@ -43,77 +45,77 @@ export WEBAPP_PORT="8000"
 python bot_webhook.py
 ```
 
-### Шаг 3: Запустите Ngrok (в другом терминале)
+### Step 3: Run Ngrok (in another terminal)
 
 ```bash
 ngrok http 8000
 ```
 
-Вы увидите:
+You'll see:
 ```
 Forwarding  https://abc123.ngrok-free.app -> http://localhost:8000
 ```
 
-### Шаг 4: Обновите WEBHOOK_HOST
+### Step 4: Update WEBHOOK_HOST
 
 ```bash
-# Остановите бота (Ctrl+C)
+# Stop the bot (Ctrl+C)
 
-# Обновите переменную:
+# Update variable:
 export WEBHOOK_HOST="https://abc123.ngrok-free.app"
 
-# Перезапустите:
+# Restart:
 python bot_webhook.py
 ```
 
-### ✅ Проверка
+### ✅ Verification
 
 ```bash
-# Проверьте webhook info
+# Check webhook info
 curl https://api.telegram.org/bot<YOUR_TOKEN>/getWebhookInfo
 ```
 
-**Плюсы:**
-- ✅ Быстрое тестирование
-- ✅ Не нужен VPS
-- ✅ Автоматический HTTPS
+**Pros:**
+- ✅ Quick testing
+- ✅ No VPS needed
+- ✅ Automatic HTTPS
 
-**Минусы:**
-- ❌ URL меняется при каждом запуске ngrok
-- ❌ Не для production
-- ❌ Бесплатная версия имеет ограничения
+**Cons:**
+- ❌ URL changes on each ngrok restart
+- ❌ Not for production
+- ❌ Free version has limitations
 
 ---
 
 ## 2. VPS (DigitalOcean, Hetzner, Linode)
 
-**Используйте для**: Production deployment
+**Use for**: Production deployment
 
-### Требования
+### Requirements
 
 - Ubuntu 20.04/22.04 LTS
-- Публичный IP адрес
-- Доменное имя (например, `bot.example.com`)
+- Public IP address
+- Domain name (e.g., `bot.example.com`)
 
-### Шаг 1: Подключитесь к серверу
+### Step 1: Connect to Server
 
 ```bash
 ssh root@your-server-ip
 ```
 
-### Шаг 2: Обновите систему
+### Step 2: Update System
 
 ```bash
 apt update && apt upgrade -y
 ```
 
-### Шаг 3: Установите Python и зависимости
+### Step 3: Install Python and Dependencies
 
 ```bash
 apt install python3 python3-pip python3-venv nginx certbot python3-certbot-nginx -y
 ```
 
-### Шаг 4: Создайте пользователя для бота
+### Step 4: Create Bot User
 
 ```bash
 adduser botuser
@@ -121,15 +123,15 @@ usermod -aG sudo botuser
 su - botuser
 ```
 
-### Шаг 5: Клонируйте репозиторий
+### Step 5: Clone Repository
 
 ```bash
 cd ~
 git clone <your-repo-url>
-cd example_11_webhook/aiogram  # или python_telegram_bot
+cd example_11_webhook/aiogram  # or python_telegram_bot
 ```
 
-### Шаг 6: Создайте виртуальное окружение
+### Step 6: Create Virtual Environment
 
 ```bash
 python3 -m venv venv
@@ -137,7 +139,7 @@ source venv/bin/activate
 pip install -r requirements.txt
 ```
 
-### Шаг 7: Настройте переменные окружения
+### Step 7: Set Environment Variables
 
 ```bash
 cat > ~/bot.env <<EOF
@@ -150,13 +152,13 @@ WEBAPP_PORT=8000
 EOF
 ```
 
-### Шаг 8: Настройте Nginx
+### Step 8: Configure Nginx
 
 ```bash
 sudo nano /etc/nginx/sites-available/bot
 ```
 
-Вставьте:
+Insert:
 
 ```nginx
 server {
@@ -172,16 +174,16 @@ server {
     listen 443 ssl http2;
     server_name bot.example.com;
 
-    # SSL сертификаты (будут созданы certbot)
+    # SSL certificates (will be created by certbot)
     ssl_certificate /etc/letsencrypt/live/bot.example.com/fullchain.pem;
     ssl_certificate_key /etc/letsencrypt/live/bot.example.com/privkey.pem;
 
-    # SSL настройки
+    # SSL settings
     ssl_protocols TLSv1.2 TLSv1.3;
     ssl_ciphers HIGH:!aNULL:!MD5;
     ssl_prefer_server_ciphers on;
 
-    # Логи
+    # Logs
     access_log /var/log/nginx/bot_access.log;
     error_log /var/log/nginx/bot_error.log;
 
@@ -193,7 +195,7 @@ server {
         proxy_set_header X-Forwarded-For $proxy_add_x_forwarded_for;
         proxy_set_header X-Forwarded-Proto $scheme;
 
-        # Ограничить доступ только с IP Telegram
+        # Allow only Telegram IPs
         allow 149.154.160.0/20;
         allow 91.108.4.0/22;
         deny all;
@@ -206,46 +208,46 @@ server {
         access_log off;
     }
 
-    # Блокировать все остальные запросы
+    # Block all other requests
     location / {
         return 404;
     }
 }
 ```
 
-Активируйте конфигурацию:
+Activate configuration:
 
 ```bash
 sudo ln -s /etc/nginx/sites-available/bot /etc/nginx/sites-enabled/
 sudo nginx -t
 ```
 
-### Шаг 9: Получите SSL сертификат
+### Step 9: Get SSL Certificate
 
 ```bash
-# Временно закомментируйте SSL строки в nginx конфиге
+# Temporarily comment out SSL lines in nginx config
 sudo nano /etc/nginx/sites-available/bot
-# Закомментируйте строки ssl_certificate*
+# Comment out ssl_certificate* lines
 
 sudo systemctl reload nginx
 
-# Получите сертификат
+# Get certificate
 sudo certbot --nginx -d bot.example.com
 
-# Раскомментируйте SSL строки обратно
+# Uncomment SSL lines back
 sudo nano /etc/nginx/sites-available/bot
 
-# Перезагрузите nginx
+# Reload nginx
 sudo systemctl reload nginx
 ```
 
-### Шаг 10: Создайте systemd service
+### Step 10: Create systemd Service
 
 ```bash
 sudo nano /etc/systemd/system/telegram-bot.service
 ```
 
-Вставьте:
+Insert:
 
 ```ini
 [Unit]
@@ -261,7 +263,7 @@ ExecStart=/home/botuser/example_11_webhook/aiogram/venv/bin/python bot_webhook.p
 Restart=on-failure
 RestartSec=10
 
-# Логирование
+# Logging
 StandardOutput=journal
 StandardError=journal
 SyslogIdentifier=telegram-bot
@@ -270,7 +272,7 @@ SyslogIdentifier=telegram-bot
 WantedBy=multi-user.target
 ```
 
-### Шаг 11: Запустите бота
+### Step 11: Start Bot
 
 ```bash
 sudo systemctl daemon-reload
@@ -278,32 +280,32 @@ sudo systemctl enable telegram-bot
 sudo systemctl start telegram-bot
 ```
 
-### ✅ Проверка
+### ✅ Verification
 
 ```bash
-# Проверьте статус
+# Check status
 sudo systemctl status telegram-bot
 
-# Посмотрите логи
+# View logs
 sudo journalctl -u telegram-bot -f
 
-# Проверьте webhook
+# Check webhook
 curl https://api.telegram.org/bot<TOKEN>/getWebhookInfo
 
-# Проверьте healthcheck
+# Check healthcheck
 curl https://bot.example.com/health
 ```
 
-### 🔧 Управление
+### 🔧 Management
 
 ```bash
-# Остановить
+# Stop
 sudo systemctl stop telegram-bot
 
-# Перезапустить
+# Restart
 sudo systemctl restart telegram-bot
 
-# Посмотреть логи
+# View logs
 sudo journalctl -u telegram-bot -f --lines 100
 ```
 
@@ -311,22 +313,22 @@ sudo journalctl -u telegram-bot -f --lines 100
 
 ## 3. Docker Deployment
 
-**Используйте для**: Изолированного development и production deployment
+**Use for**: Isolated development and production deployment
 
-### Шаг 1: Dockerfile
+### Step 1: Dockerfile
 
-Уже создан в `docker/Dockerfile`
+Already created in `docker/Dockerfile`
 
-### Шаг 2: Docker Compose
+### Step 2: Docker Compose
 
-Уже создан в `docker/docker-compose.yml`
+Already created in `docker/docker-compose.yml`
 
-### Шаг 3: Запустите
+### Step 3: Run
 
 ```bash
 cd docker
 
-# Создайте .env файл
+# Create .env file
 cat > .env <<EOF
 BOT_TOKEN=your_token_here
 WEBHOOK_HOST=https://bot.example.com
@@ -334,23 +336,23 @@ WEBHOOK_PATH=/webhook
 WEBHOOK_SECRET=your_secret_here
 EOF
 
-# Запустите
+# Run
 docker-compose up -d
 
-# Посмотрите логи
+# View logs
 docker-compose logs -f bot
 ```
 
-### ✅ Проверка
+### ✅ Verification
 
 ```bash
-# Статус контейнеров
+# Container status
 docker-compose ps
 
-# Логи
+# Logs
 docker-compose logs bot
 
-# Остановить
+# Stop
 docker-compose down
 ```
 
@@ -358,9 +360,9 @@ docker-compose down
 
 ## 4. Heroku
 
-**Используйте для**: Быстрого бесплатного деплоя (с ограничениями)
+**Use for**: Quick free deployment (with limitations)
 
-### Шаг 1: Установите Heroku CLI
+### Step 1: Install Heroku CLI
 
 ```bash
 # macOS
@@ -370,20 +372,20 @@ brew tap heroku/brew && brew install heroku
 curl https://cli-assets.heroku.com/install.sh | sh
 ```
 
-### Шаг 2: Войдите в Heroku
+### Step 2: Login to Heroku
 
 ```bash
 heroku login
 ```
 
-### Шаг 3: Создайте приложение
+### Step 3: Create Application
 
 ```bash
-cd example_11_webhook/aiogram  # или python_telegram_bot
+cd example_11_webhook/aiogram  # or python_telegram_bot
 heroku create your-bot-name
 ```
 
-### Шаг 4: Создайте Procfile
+### Step 4: Create Procfile
 
 ```bash
 cat > Procfile <<EOF
@@ -391,33 +393,33 @@ web: python bot_webhook.py
 EOF
 ```
 
-### Шаг 5: Создайте runtime.txt
+### Step 5: Create runtime.txt
 
 ```bash
 echo "python-3.11.0" > runtime.txt
 ```
 
-### Шаг 6: Настройте переменные
+### Step 6: Configure Variables
 
 ```bash
 heroku config:set BOT_TOKEN=your_token_here
 heroku config:set WEBHOOK_HOST=https://your-bot-name.herokuapp.com
 heroku config:set WEBHOOK_PATH=/webhook
 heroku config:set WEBAPP_HOST=0.0.0.0
-heroku config:set WEBAPP_PORT=$PORT  # Heroku автоматически устанавливает $PORT
+heroku config:set WEBAPP_PORT=$PORT  # Heroku auto-sets $PORT
 ```
 
-⚠️ **Важно**: Heroku динамически назначает порт. Измените `bot_webhook.py`:
+⚠️ **Important**: Heroku dynamically assigns port. Modify `bot_webhook.py`:
 
 ```python
-# Было:
+# Was:
 WEBAPP_PORT = int(os.getenv("WEBAPP_PORT", 8000))
 
-# Должно быть:
-WEBAPP_PORT = int(os.getenv("PORT", 8000))  # Heroku использует PORT
+# Should be:
+WEBAPP_PORT = int(os.getenv("PORT", 8000))  # Heroku uses PORT
 ```
 
-### Шаг 7: Deploy
+### Step 7: Deploy
 
 ```bash
 git init
@@ -426,55 +428,55 @@ git commit -m "Initial commit"
 git push heroku main
 ```
 
-### ✅ Проверка
+### ✅ Verification
 
 ```bash
 heroku logs --tail
 heroku ps
 ```
 
-**Плюсы:**
-- ✅ Бесплатный tier
-- ✅ Автоматический HTTPS
-- ✅ Простой deploy
+**Pros:**
+- ✅ Free tier
+- ✅ Automatic HTTPS
+- ✅ Easy deploy
 
-**Минусы:**
-- ❌ Спит после 30 минут неактивности (бесплатный план)
-- ❌ Ограниченные часы в месяц
-- ❌ Может быть медленным
+**Cons:**
+- ❌ Sleeps after 30 minutes of inactivity (free plan)
+- ❌ Limited hours per month
+- ❌ Can be slow
 
 ---
 
 ## 5. Railway
 
-**Используйте для**: Современного production-ready деплоя
+**Use for**: Modern production-ready deployment
 
-### Шаг 1: Создайте аккаунт на Railway.app
+### Step 1: Create Account on Railway.app
 
-Перейдите на https://railway.app
+Go to https://railway.app
 
-### Шаг 2: Установите Railway CLI
+### Step 2: Install Railway CLI
 
 ```bash
 npm install -g @railway/cli
-# или
+# or
 brew install railway
 ```
 
-### Шаг 3: Войдите
+### Step 3: Login
 
 ```bash
 railway login
 ```
 
-### Шаг 4: Инициализируйте проект
+### Step 4: Initialize Project
 
 ```bash
-cd example_11_webhook/aiogram  # или python_telegram_bot
+cd example_11_webhook/aiogram  # or python_telegram_bot
 railway init
 ```
 
-### Шаг 5: Настройте переменные
+### Step 5: Configure Variables
 
 ```bash
 railway variables set BOT_TOKEN=your_token_here
@@ -484,46 +486,46 @@ railway variables set WEBAPP_HOST=0.0.0.0
 railway variables set WEBAPP_PORT=8000
 ```
 
-### Шаг 6: Deploy
+### Step 6: Deploy
 
 ```bash
 railway up
 ```
 
-### ✅ Проверка
+### ✅ Verification
 
 ```bash
 railway logs
 railway status
 ```
 
-**Плюсы:**
-- ✅ Не засыпает
-- ✅ Автоматический HTTPS
-- ✅ Современный UI
-- ✅ CI/CD из коробки
+**Pros:**
+- ✅ Doesn't sleep
+- ✅ Automatic HTTPS
+- ✅ Modern UI
+- ✅ CI/CD out of box
 
-**Минусы:**
-- ❌ Бесплатный план ограничен
-- ❌ Может быть дороже других решений
+**Cons:**
+- ❌ Free plan limited
+- ❌ Can be more expensive than alternatives
 
 ---
 
 ## 6. Render.com
 
-**Используйте для**: Production deployment с бесплатным tier
+**Use for**: Production deployment with free tier
 
-### Шаг 1: Создайте аккаунт на Render.com
+### Step 1: Create Account on Render.com
 
-Перейдите на https://render.com
+Go to https://render.com
 
-### Шаг 2: Создайте новый Web Service
+### Step 2: Create New Web Service
 
 - Click "New +"
 - Select "Web Service"
 - Connect your GitHub repository
 
-### Шаг 3: Настройте
+### Step 3: Configure
 
 ```
 Name: telegram-bot
@@ -532,97 +534,99 @@ Build Command: pip install -r requirements.txt
 Start Command: python bot_webhook.py
 ```
 
-### Шаг 4: Добавьте переменные окружения
+### Step 4: Add Environment Variables
 
 ```
 BOT_TOKEN=your_token_here
 WEBHOOK_HOST=https://telegram-bot.onrender.com
 WEBHOOK_PATH=/webhook
 WEBAPP_HOST=0.0.0.0
-WEBAPP_PORT=10000  # Render использует 10000 по умолчанию
+WEBAPP_PORT=10000  # Render uses 10000 by default
 ```
 
-### Шаг 5: Deploy
+### Step 5: Deploy
 
 Click "Create Web Service"
 
-### ✅ Проверка
+### ✅ Verification
 
-Посмотрите логи в Dashboard
+View logs in Dashboard
 
-**Плюсы:**
-- ✅ Бесплатный tier не спит (в отличие от Heroku)
-- ✅ Автоматический HTTPS
-- ✅ Auto-deploy из GitHub
+**Pros:**
+- ✅ Free tier doesn't sleep (unlike Heroku)
+- ✅ Automatic HTTPS
+- ✅ Auto-deploy from GitHub
 
-**Минусы:**
-- ❌ Холодный старт может быть медленным
-- ❌ Ограничения бесплатного плана
+**Cons:**
+- ❌ Cold start can be slow
+- ❌ Free plan limitations
 
 ---
 
-## 📊 Сравнение платформ
+## 📊 Platform Comparison
 
-| Платформа | Бесплатно | HTTPS | Спит | Сложность | Production-ready |
-|-----------|-----------|-------|------|-----------|------------------|
+| Platform | Free | HTTPS | Sleeps | Complexity | Production-ready |
+|----------|------|-------|--------|------------|------------------|
 | **Ngrok** | ✅ | ✅ | ❌ | ⭐ | ❌ |
-| **VPS** | ❌ ($5/мес) | ✅* | ❌ | ⭐⭐⭐⭐ | ✅ |
+| **VPS** | ❌ ($5/mo) | ✅* | ❌ | ⭐⭐⭐⭐ | ✅ |
 | **Docker** | - | - | - | ⭐⭐⭐ | ✅ |
-| **Heroku** | ✅ (ограничен) | ✅ | ✅ | ⭐⭐ | ⚠️ |
-| **Railway** | ✅ (ограничен) | ✅ | ❌ | ⭐⭐ | ✅ |
+| **Heroku** | ✅ (limited) | ✅ | ✅ | ⭐⭐ | ⚠️ |
+| **Railway** | ✅ (limited) | ✅ | ❌ | ⭐⭐ | ✅ |
 | **Render** | ✅ | ✅ | ❌ | ⭐⭐ | ✅ |
 
-*\* Требуется настройка Let's Encrypt*
+*\* Requires Let's Encrypt setup*
 
 ---
 
-## 🔍 Отладка проблем
+## 🔍 Troubleshooting
 
-### Webhook не устанавливается
+### Webhook Not Setting
 
 ```bash
-# Проверьте что URL доступен
+# Check URL is accessible
 curl -I https://your-domain.com/webhook
 
-# Проверьте SSL
+# Check SSL
 curl -vI https://your-domain.com/webhook 2>&1 | grep SSL
 
-# Проверьте webhook info
+# Check webhook info
 curl https://api.telegram.org/bot<TOKEN>/getWebhookInfo
 ```
 
-### Бот не получает сообщения
+### Bot Not Receiving Messages
 
 ```bash
-# Проверьте логи
+# Check logs
 sudo journalctl -u telegram-bot -f
 
-# Проверьте nginx
+# Check nginx
 sudo tail -f /var/log/nginx/error.log
 
-# Проверьте что порт открыт
+# Check port is open
 netstat -tulpn | grep 8000
 ```
 
-### SSL ошибки
+### SSL Errors
 
 ```bash
-# Проверьте сертификат
+# Check certificate
 openssl s_client -connect your-domain.com:443 -servername your-domain.com
 
-# Обновите сертификат
+# Renew certificate
 sudo certbot renew
 
-# Перезагрузите nginx
+# Reload nginx
 sudo systemctl reload nginx
 ```
 
 ---
 
-## 📚 Дополнительные ресурсы
+## 📚 Additional Resources
 
 - [Telegram Bot API - Webhooks](https://core.telegram.org/bots/api#setwebhook)
 - [Let's Encrypt](https://letsencrypt.org/)
 - [Nginx Documentation](https://nginx.org/en/docs/)
 - [Docker Documentation](https://docs.docker.com/)
 - [systemd Guide](https://www.freedesktop.org/software/systemd/man/systemd.service.html)
+
+**[🇷🇺 Русская версия / Russian version](./DEPLOYMENT_RU.md)**

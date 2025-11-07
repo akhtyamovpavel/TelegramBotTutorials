@@ -1,14 +1,16 @@
-# 📊 Подробное сравнение: Polling vs WebHook
+# 📊 Detailed Comparison: Polling vs WebHook
 
-## Введение
+**[🇷🇺 Русская версия / Russian version](./COMPARISON_RU.md)**
 
-Существует два способа получения обновлений от Telegram Bot API:
-1. **Long Polling** - бот опрашивает сервер Telegram
-2. **WebHook** - Telegram отправляет обновления на ваш сервер
+## Introduction
+
+There are two ways to receive updates from Telegram Bot API:
+1. **Long Polling** - bot queries Telegram server
+2. **WebHook** - Telegram sends updates to your server
 
 ## 🔄 Long Polling
 
-### Как работает
+### How it Works
 
 ```
 ┌─────────┐                     ┌──────────┐
@@ -17,15 +19,15 @@
 │         │ <── Updates[0-N] ── │          │
 └─────────┘                     └──────────┘
      │
-     └─── Повторяет каждые N секунд
+     └─── Repeats every N seconds
 ```
 
-1. Бот отправляет запрос `getUpdates` к Telegram API
-2. Сервер возвращает список обновлений (или пустой список)
-3. Бот обрабатывает обновления
-4. Через N секунд процесс повторяется
+1. Bot sends `getUpdates` request to Telegram API
+2. Server returns list of updates (or empty list)
+3. Bot processes updates
+4. After N seconds, process repeats
 
-### Код (aiogram)
+### Code (aiogram)
 
 ```python
 async def main():
@@ -35,60 +37,60 @@ async def main():
     dp.include_router(router)
 
     # Long Polling
-    await dp.start_polling(bot)  # ← Вот здесь!
+    await dp.start_polling(bot)  # ← Here!
 
 if __name__ == "__main__":
     asyncio.run(main())
 ```
 
-### Преимущества ✅
+### Advantages ✅
 
-1. **Простота настройки**
-   - Не нужен публичный IP
-   - Не нужен домен
-   - Не нужен SSL сертификат
-   - Работает на localhost
+1. **Simple Setup**
+   - No public IP needed
+   - No domain required
+   - No SSL certificate needed
+   - Works on localhost
 
-2. **Отладка**
-   - Легко тестировать локально
-   - Можно запускать/останавливать когда угодно
-   - Простые логи
+2. **Debugging**
+   - Easy to test locally
+   - Can start/stop anytime
+   - Simple logs
 
-3. **Мобильность**
-   - Работает на ноутбуке
-   - Работает за NAT/firewall
-   - Не требует открытых портов
+3. **Mobility**
+   - Works on laptop
+   - Works behind NAT/firewall
+   - No open ports required
 
-### Недостатки ❌
+### Disadvantages ❌
 
-1. **Производительность**
-   - Постоянные HTTP запросы (даже если обновлений нет)
-   - Задержка в получении сообщений (polling interval)
-   - Потребление CPU/памяти
+1. **Performance**
+   - Constant HTTP requests (even when no updates)
+   - Message delivery delay (polling interval)
+   - CPU/memory consumption
 
-2. **Масштабируемость**
-   - Сложно масштабировать горизонтально
-   - Каждый экземпляр делает свои запросы
-   - Нет балансировки нагрузки
+2. **Scalability**
+   - Hard to scale horizontally
+   - Each instance makes own requests
+   - No load balancing
 
 3. **Production**
-   - Не рекомендуется для production
-   - Может быть медленнее webhook
-   - Больше нагрузки на API
+   - Not recommended for production
+   - Can be slower than webhook
+   - More load on API
 
-### Когда использовать
+### When to Use
 
-- ✅ Разработка и тестирование
-- ✅ Локальная отладка
-- ✅ Прототипирование
-- ✅ Личные/хобби проекты
-- ✅ Малая нагрузка (<100 пользователей)
+- ✅ Development and testing
+- ✅ Local debugging
+- ✅ Prototyping
+- ✅ Personal/hobby projects
+- ✅ Low load (<100 users)
 
 ---
 
 ## 🪝 WebHook
 
-### Как работает
+### How it Works
 
 ```
 ┌─────────┐                     ┌──────────┐
@@ -105,12 +107,12 @@ if __name__ == "__main__":
                                 └──────────┘
 ```
 
-1. Пользователь отправляет сообщение
-2. Telegram **мгновенно** отправляет HTTPS POST запрос на ваш сервер
-3. Ваш сервер обрабатывает обновление
-4. Сервер отвечает `200 OK` (обязательно в течение 60 секунд)
+1. User sends message
+2. Telegram **instantly** sends HTTPS POST to your server
+3. Your server processes update
+4. Server responds with `200 OK` (must be within 60 seconds)
 
-### Код (aiogram)
+### Code (aiogram)
 
 ```python
 from aiohttp import web
@@ -122,249 +124,169 @@ def main():
 
     app = web.Application()
 
-    # Регистрируем webhook handler
+    # Register webhook handler
     webhook_handler = SimpleRequestHandler(
         dispatcher=dp,
         bot=bot
     )
     webhook_handler.register(app, path="/webhook")
 
-    # Устанавливаем webhook
+    # Set webhook
     await bot.set_webhook(url="https://your-domain.com/webhook")
 
-    # Запускаем веб-сервер
+    # Run web server
     web.run_app(app, host="0.0.0.0", port=8000)
 
 if __name__ == "__main__":
     main()
 ```
 
-### Преимущества ✅
+### Advantages ✅
 
-1. **Производительность**
-   - Мгновенное получение обновлений (0 задержка)
-   - Нет лишних запросов
-   - Меньше потребление ресурсов
+1. **Performance**
+   - Instant update delivery (0 delay)
+   - No unnecessary requests
+   - Lower resource consumption
 
-2. **Масштабируемость**
-   - Легко горизонтально масштабировать
-   - Балансировка нагрузки (nginx)
-   - Несколько экземпляров бота
+2. **Scalability**
+   - Easy to scale horizontally
+   - Load balancing (nginx)
+   - Multiple bot instances
 
 3. **Production-ready**
-   - Рекомендуется Telegram
-   - Оптимально для высокой нагрузки
-   - Профессиональный подход
+   - Recommended by Telegram
+   - Optimal for high load
+   - Professional approach
 
-### Недостатки ❌
+### Disadvantages ❌
 
-1. **Сложность настройки**
-   - Нужен публичный домен
-   - Нужен валидный SSL сертификат
-   - Нужен открытый порт (443, 80, 88, 8443)
+1. **Setup Complexity**
+   - Requires public domain
+   - Requires valid SSL certificate
+   - Requires open port (443, 80, 88, 8443)
 
-2. **Требования к инфраструктуре**
-   - VPS/сервер с публичным IP
-   - Настройка nginx/Apache
-   - Let's Encrypt или другой SSL
+2. **Infrastructure Requirements**
+   - VPS/server with public IP
+   - Nginx/Apache configuration
+   - Let's Encrypt or other SSL
 
-3. **Отладка**
-   - Сложнее отлаживать локально
-   - Нужен ngrok или похожий инструмент
-   - Логи требуют настройки
+3. **Debugging**
+   - Harder to debug locally
+   - Requires ngrok or similar tool
+   - Logs need configuration
 
-### Когда использовать
+### When to Use
 
 - ✅ Production deployment
-- ✅ Высокая нагрузка (>1000 пользователей)
-- ✅ Критично важная скорость ответа
-- ✅ Несколько ботов на одном сервере
-- ✅ Профессиональные проекты
+- ✅ High load (>1000 users)
+- ✅ Speed is critical
+- ✅ Multiple bots on one server
+- ✅ Professional projects
 
 ---
 
-## 📊 Детальное сравнение
+## 📊 Detailed Comparison
 
-### Задержка получения сообщений
+### Message Delivery Latency
 
-| Метод | Минимальная задержка | Типичная задержка |
-|-------|---------------------|-------------------|
-| **Polling** | 1-5 секунд | 2-10 секунд |
+| Method | Minimum Latency | Typical Latency |
+|--------|----------------|-----------------|
+| **Polling** | 1-5 seconds | 2-10 seconds |
 | **WebHook** | <100ms | <500ms |
 
-### Нагрузка на API
+### API Load
 
-#### Polling (10 пользователей, 10 сообщений/час)
-
-```
-Запросов к API в час: 1200 (каждые 3 секунды)
-Полезных ответов: 10 (0.8%)
-Пустых ответов: 1190 (99.2%)
-```
-
-#### WebHook (10 пользователей, 10 сообщений/час)
+#### Polling (10 users, 10 messages/hour)
 
 ```
-Запросов к API в час: 10
-Полезных ответов: 10 (100%)
-Пустых ответов: 0 (0%)
+API requests per hour: 1200 (every 3 seconds)
+Useful responses: 10 (0.8%)
+Empty responses: 1190 (99.2%)
 ```
 
-### Потребление ресурсов
+#### WebHook (10 users, 10 messages/hour)
 
-**Сценарий:** Бот с 1000 активных пользователей, 10000 сообщений/день
+```
+API requests per hour: 10
+Useful responses: 10 (100%)
+Empty responses: 0 (0%)
+```
 
-| Метод | CPU | RAM | Сетевой трафик | Задержка ответа |
-|-------|-----|-----|----------------|-----------------|
-| **Polling** | ~15% | 100MB | 2GB/день | 2-5 сек |
-| **WebHook** | ~5% | 80MB | 200MB/день | <1 сек |
+### Resource Consumption
 
-### Стоимость (примерная)
+**Scenario:** Bot with 1000 active users, 10000 messages/day
 
-**VPS DigitalOcean/Linode ($5/месяц):**
+| Method | CPU | RAM | Network Traffic | Response Latency |
+|--------|-----|-----|----------------|------------------|
+| **Polling** | ~15% | 100MB | 2GB/day | 2-5 sec |
+| **WebHook** | ~5% | 80MB | 200MB/day | <1 sec |
 
-| Метод | Max пользователей | Max сообщений/день | Рекомендация |
-|-------|-------------------|---------------------|--------------|
-| **Polling** | ~5000 | ~50,000 | Работает, но не оптимально |
-| **WebHook** | ~20,000 | ~200,000 | Оптимально |
+### Cost (Approximate)
+
+**VPS DigitalOcean/Linode ($5/month):**
+
+| Method | Max Users | Max Messages/day | Recommendation |
+|--------|-----------|------------------|----------------|
+| **Polling** | ~5000 | ~50,000 | Works, but not optimal |
+| **WebHook** | ~20,000 | ~200,000 | Optimal |
 
 ---
 
-## 🔧 Технические различия
+## 🚀 Performance: Real Tests
 
-### Архитектура
-
-#### Polling
-
-```python
-# Бот активно опрашивает API
-while True:
-    updates = await bot.get_updates(
-        offset=offset,
-        timeout=30,  # Long polling timeout
-        allowed_updates=["message"]
-    )
-
-    for update in updates:
-        await process_update(update)
-        offset = update.update_id + 1
-
-    await asyncio.sleep(0.1)  # Небольшая пауза
-```
-
-**Проблемы:**
-- Бесконечный цикл потребляет ресурсы
-- Задержка между запросами
-- Сложно обработать несколько обновлений одновременно
-
-#### WebHook
-
-```python
-# Telegram вызывает ваш endpoint
-@app.post("/webhook")
-async def webhook(request: web.Request):
-    update = await request.json()
-    await process_update(update)
-    return web.Response(status=200)
-```
-
-**Преимущества:**
-- Нет активного опроса
-- Асинхронная обработка
-- Легко масштабировать (Load Balancer)
-
-### Надежность
-
-#### Polling
-
-```python
-# Если бот упал - обновления теряются НЕТ!
-# Telegram хранит обновления 24 часа
-
-# При перезапуске:
-updates = await bot.get_updates()  # Получаем все пропущенные
-```
-
-**Восстановление:**
-- ✅ Автоматическое после перезапуска
-- ✅ Обновления хранятся 24 часа
-- ❌ Могут быть дубликаты
-
-#### WebHook
-
-```python
-# Если сервер не отвечает (timeout > 60s) или возвращает 5xx
-# Telegram повторяет запрос несколько раз
-
-# При установке webhook:
-await bot.set_webhook(
-    url="https://your-domain.com/webhook",
-    drop_pending_updates=True  # Удалить старые обновления
-)
-```
-
-**Восстановление:**
-- ✅ Автоматические повторные попытки от Telegram
-- ✅ Гарантия доставки (eventually)
-- ⚠️ Нужно отвечать быстро (<60s)
-
----
-
-## 🚀 Производительность: Реальные тесты
-
-### Тест 1: Одновременная обработка 100 сообщений
+### Test 1: Processing 100 Simultaneous Messages
 
 ```
 Polling:
-  - Время: ~25 секунд
+  - Time: ~25 seconds
   - CPU: 45%
   - RAM: 120MB
-  - Пиковая задержка: 8 секунд
+  - Peak latency: 8 seconds
 
 WebHook:
-  - Время: ~3 секунды
+  - Time: ~3 seconds
   - CPU: 12%
   - RAM: 95MB
-  - Пиковая задержка: 0.5 секунд
+  - Peak latency: 0.5 seconds
 ```
 
-### Тест 2: 10,000 сообщений за час
+### Test 2: 10,000 Messages Per Hour
 
 ```
 Polling:
-  - Запросов к API: 12,000+
-  - Полезных: 10,000
-  - Холостых: 2,000+
-  - Средняя задержка: 3.5с
+  - API requests: 12,000+
+  - Useful: 10,000
+  - Empty: 2,000+
+  - Average latency: 3.5s
 
 WebHook:
-  - Запросов к API: 10,000
-  - Полезных: 10,000
-  - Холостых: 0
-  - Средняя задержка: 0.3с
+  - API requests: 10,000
+  - Useful: 10,000
+  - Empty: 0
+  - Average latency: 0.3s
 ```
 
 ---
 
-## 💡 Рекомендации
+## 💡 Recommendations
 
-### Используйте Polling если:
+### Use Polling If:
 
-1. Вы в процессе разработки/тестирования
-2. Бот работает на вашем локальном компьютере
-3. У вас нет публичного IP/домена
-4. Нагрузка очень низкая (<50 пользователей)
-5. Это хобби-проект
+1. You're in development/testing
+2. Bot runs on your local computer
+3. You don't have public IP/domain
+4. Load is very low (<50 users)
+5. It's a hobby project
 
-### Используйте WebHook если:
+### Use WebHook If:
 
-1. Бот в production
-2. Ожидается высокая нагрузка (>100 пользователей)
-3. Важна скорость ответа
-4. Есть VPS с доменом и SSL
-5. Это коммерческий проект
+1. Bot is in production
+2. High load expected (>100 users)
+3. Speed is important
+4. Have VPS with domain and SSL
+5. It's a commercial project
 
-### Гибридный подход
+### Hybrid Approach
 
 ```python
 # Development
@@ -379,26 +301,28 @@ else:
 
 ---
 
-## 📚 Итоги
+## 📚 Summary
 
-| Критерий | Polling | WebHook | Победитель |
-|----------|---------|---------|------------|
-| **Простота настройки** | ⭐⭐⭐⭐⭐ | ⭐⭐ | Polling |
-| **Скорость** | ⭐⭐ | ⭐⭐⭐⭐⭐ | WebHook |
-| **Масштабируемость** | ⭐⭐ | ⭐⭐⭐⭐⭐ | WebHook |
-| **Потребление ресурсов** | ⭐⭐ | ⭐⭐⭐⭐ | WebHook |
-| **Отладка** | ⭐⭐⭐⭐⭐ | ⭐⭐⭐ | Polling |
+| Criteria | Polling | WebHook | Winner |
+|----------|---------|---------|--------|
+| **Setup simplicity** | ⭐⭐⭐⭐⭐ | ⭐⭐ | Polling |
+| **Speed** | ⭐⭐ | ⭐⭐⭐⭐⭐ | WebHook |
+| **Scalability** | ⭐⭐ | ⭐⭐⭐⭐⭐ | WebHook |
+| **Resource usage** | ⭐⭐ | ⭐⭐⭐⭐ | WebHook |
+| **Debugging** | ⭐⭐⭐⭐⭐ | ⭐⭐⭐ | Polling |
 | **Production-ready** | ⭐⭐ | ⭐⭐⭐⭐⭐ | WebHook |
 
-### Вердикт
+### Verdict
 
-- **Для разработки:** Используйте **Polling**
-- **Для production:** Используйте **WebHook**
+- **For development:** Use **Polling**
+- **For production:** Use **WebHook**
 
 ---
 
-## 🔗 Дополнительные материалы
+## 🔗 Additional Materials
 
 - [Telegram Bot API - getUpdates](https://core.telegram.org/bots/api#getupdates)
 - [Telegram Bot API - setWebhook](https://core.telegram.org/bots/api#setwebhook)
 - [Telegram - Webhooks Guide](https://core.telegram.org/bots/webhooks)
+
+**[🇷🇺 Русская версия / Russian version](./COMPARISON_RU.md)**

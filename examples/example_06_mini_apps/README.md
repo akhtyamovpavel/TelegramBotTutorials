@@ -1,516 +1,313 @@
 # Example 6: Telegram Mini Apps (WebApp)
 
-## ⚠️ Критически важные требования
+**[Русская версия / Russian version](./README_RU.md)**
 
-### 1️⃣ Тип кнопки: ТОЛЬКО KeyboardButton!
+## ⚠️ Critical Requirements
 
-**`sendData()` работает ТОЛЬКО с `KeyboardButton` (reply клавиатура), НЕ с `InlineKeyboardButton`!**
+### 1️⃣ Button Type: ONLY KeyboardButton!
+
+**`sendData()` works ONLY with `KeyboardButton` (reply keyboard), NOT with `InlineKeyboardButton`!**
 
 ```python
-# ✅ ПРАВИЛЬНО - KeyboardButton (кнопка в клавиатуре):
+# ✅ CORRECT - KeyboardButton (button in keyboard):
 keyboard = ReplyKeyboardMarkup(
     keyboard=[[KeyboardButton(text="Open", web_app=WebAppInfo(url=URL))]],
     resize_keyboard=True
 )
 
-# ❌ НЕПРАВИЛЬНО - InlineKeyboardButton (кнопка под сообщением):
+# ❌ WRONG - InlineKeyboardButton (button under message):
 # keyboard = InlineKeyboardMarkup(
 #     inline_keyboard=[[InlineKeyboardButton(text="Open", web_app=WebAppInfo(url=URL))]]
 # )
-# WebApp откроется, но sendData() НЕ будет работать!
+# WebApp will open, but sendData() WON'T work!
 ```
 
-**Источник:** [StackOverflow - Web App Data not received](https://stackoverflow.com/questions/72988184/)
+**Source:** [StackOverflow - Web App Data not received](https://stackoverflow.com/questions/72988184/)
 
-### 2️⃣ HTTPS обязателен
+### 2️⃣ HTTPS Required
 
-**Telegram НЕ поддерживает `data:` URLs и HTTP для WebApp!**
+**Telegram does NOT support `data:` URLs and HTTP for WebApp!**
 
-WebApp **обязательно** должен быть размещен на **реальном HTTPS сервере**.
+WebApp **must** be hosted on a **real HTTPS server**.
 
-📖 **[Подробная инструкция по размещению → DEPLOYMENT.md](./DEPLOYMENT.md)**
+📖 **[Detailed deployment instructions → DEPLOYMENT.md](./DEPLOYMENT.md)**
 
-**Быстрые варианты:**
-- ✅ GitHub Pages (бесплатно, рекомендуется)
-- ✅ Vercel/Netlify (бесплатно)
-- ✅ Ngrok (для тестирования)
+**Quick options:**
+- ✅ GitHub Pages (free, recommended)
+- ✅ Vercel/Netlify (free)
+- ✅ Ngrok (for testing)
 
 ---
 
-## 🎯 Что нового в этом примере
+## 🎯 What's New in This Example
 
-В предыдущих примерах мы работали с:
-- Обычными кнопками (Reply Keyboard, Example 3)
-- Машиной состояний (FSM, Example 4)
-- Базами данных (Example 5)
+In previous examples we worked with:
+- Regular buttons (Reply Keyboard, Example 3)
+- State machines (FSM, Example 4)
+- Databases (Example 5)
 
-**Новые концепции:**
-- **Telegram Mini Apps (WebApp)** - веб-приложения внутри Telegram
-- **WebAppInfo** - кнопки, открывающие веб-интерфейс
-- **web_app_data** - получение данных из WebApp
-- **Telegram WebApp API** - JavaScript API для взаимодействия
+**New concepts:**
+- **Telegram Mini Apps (WebApp)** - web applications inside Telegram
+- **WebAppInfo** - buttons that open web interfaces
+- **web_app_data** - receiving data from WebApp
+- **Telegram WebApp API** - JavaScript API for interaction
 
-## 📚 Концепции
+## 📚 Concepts
 
-### Что такое Telegram Mini Apps?
+### What are Telegram Mini Apps?
 
-**Telegram Mini Apps** (ранее WebApp) - это веб-приложения (HTML/CSS/JavaScript), которые открываются **внутри** Telegram. Они позволяют создавать богатые интерактивные интерфейсы, которые невозможно реализовать с помощью обычных кнопок.
+**Telegram Mini Apps** (formerly WebApp) are web applications (HTML/CSS/JavaScript) that open **inside** Telegram. They allow creating rich interactive interfaces impossible with regular buttons.
 
-**Преимущества:**
-- **Богатый UI** - полноценный веб-интерфейс (canvas, WebGL, формы)
-- **Нативная интеграция** - доступ к данным пользователя Telegram
-- **Без установки** - открывается прямо в чате
-- **Кроссплатформенность** - работает на всех устройствах
+**Advantages:**
+- **Rich UI** - full web interface (canvas, WebGL, forms)
+- **Native integration** - access to Telegram user data
+- **No installation** - opens directly in chat
+- **Cross-platform** - works on all devices
 
-### Зачем это для ИИ-ботов?
+### Why for AI Bots?
 
-1. **Интерактивная визуализация** - показ графиков, диаграмм результатов
-2. **Сложные формы** - настройка параметров ИИ-модели
-3. **Canvas/WebGL** - рисование промптов для Image-to-Image
-4. **Превью результатов** - интерактивный просмотр сгенерированного контента
-5. **Настройки моделей** - UI для тонкой настройки параметров
+1. **Interactive visualization** - displaying graphs, result diagrams
+2. **Complex forms** - configuring AI model parameters
+3. **Canvas/WebGL** - drawing prompts for Image-to-Image
+4. **Result preview** - interactive view of generated content
+5. **Model settings** - UI for fine-tuning parameters
 
-## 🔄 Различия между библиотеками
+## 🔄 Differences Between Libraries
 
-| Функция | aiogram 3.x | python-telegram-bot 20.x |
+| Feature | aiogram 3.x | python-telegram-bot 20.x |
 |---------|-------------|--------------------------|
-| **WebApp кнопка** | `WebAppInfo(url="...")` | `WebAppInfo(url="...")` |
-| **Получение данных** | `F.web_app_data` | `filters.StatusUpdate.WEB_APP_DATA` |
-| **Keyboard** | `InlineKeyboardButton` | `InlineKeyboardButton` |
-| **Данные WebApp** | `message.web_app_data.data` | `message.web_app_data.data` |
+| **WebApp button** | `WebAppInfo(url="...")` | `WebAppInfo(url="...")` |
+| **Receiving data** | `F.web_app_data` | `filters.StatusUpdate.WEB_APP_DATA` |
+| **Keyboard** | `ReplyKeyboardMarkup` | `ReplyKeyboardMarkup` |
+| **WebApp data** | `message.web_app_data.data` | `message.web_app_data.data` |
 
-## 📖 Теория: Как работает WebApp
-
-### Архитектура:
+## 📁 Example Structure
 
 ```
-┌─────────────────┐
-│  Telegram Bot   │
-│   (Python)      │
-└────────┬────────┘
-         │
-         │ 1. Отправляет кнопку с WebApp
-         ↓
-┌─────────────────┐
-│   Пользователь  │
-│   в Telegram    │
-└────────┬────────┘
-         │
-         │ 2. Нажимает кнопку
-         ↓
-┌─────────────────┐
-│   WebApp        │
-│ (HTML/CSS/JS)   │
-│ на веб-сервере  │
-└────────┬────────┘
-         │
-         │ 3. Отправляет данные через Telegram.WebApp.sendData()
-         ↓
-┌─────────────────┐
-│  Telegram Bot   │
-│  получает данные│
-└─────────────────┘
+example_06_mini_apps/
+├── README.md                          # This file
+├── DEPLOYMENT.md                      # Deployment instructions
+├── IMPORTANT_BUTTON_TYPE.md           # Critical: Button type guide
+├── DEBUG.md                           # Debugging guide
+├── FIX_NO_RESPONSE.md                 # Fix "bot doesn't respond"
+├── TESTING.md                         # Testing guide
+├── webapp/
+│   ├── index.html                     # Main WebApp
+│   └── index_debug.html               # Debug version with console
+├── aiogram/
+│   ├── bot.py                         # Bot with aiogram
+│   ├── test_bot_minimal.py            # Minimal test bot
+│   └── requirements.txt
+└── python_telegram_bot/
+    ├── bot.py                         # Bot with python-telegram-bot
+    └── requirements.txt
 ```
 
-### Процесс взаимодействия:
+## 🚀 Quick Start
 
-1. **Бот отправляет** кнопку с `web_app` параметром
-2. **Пользователь** нажимает кнопку
-3. **Telegram открывает** WebApp (ваш HTML/JS) внутри чата
-4. **WebApp** взаимодействует с пользователем
-5. **WebApp отправляет** данные обратно боту через `Telegram.WebApp.sendData()`
-6. **Бот получает** данные и обрабатывает
+### Step 1: Deploy WebApp
 
-## 📖 Теория: Создание WebApp
-
-### 1. Создание HTML страницы
-
-```html
-<!DOCTYPE html>
-<html>
-<head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>ИИ Настройки</title>
-    <script src="https://telegram.org/js/telegram-web-app.js"></script>
-    <style>
-        body {
-            font-family: sans-serif;
-            padding: 20px;
-            background-color: var(--tg-theme-bg-color);
-            color: var(--tg-theme-text-color);
-        }
-    </style>
-</head>
-<body>
-    <h2>Настройки генерации</h2>
-    <label>Промпт:</label>
-    <textarea id="prompt" rows="4"></textarea>
-
-    <label>Количество вариантов:</label>
-    <input type="number" id="num_images" value="4" min="1" max="10">
-
-    <button onclick="sendData()">Сгенерировать</button>
-
-    <script>
-        // Инициализация Telegram WebApp
-        let tg = window.Telegram.WebApp;
-        tg.expand(); // Развернуть на весь экран
-
-        function sendData() {
-            const data = {
-                prompt: document.getElementById('prompt').value,
-                num_images: document.getElementById('num_images').value
-            };
-
-            // Отправляем данные боту
-            tg.sendData(JSON.stringify(data));
-        }
-    </script>
-</body>
-</html>
-```
-
-### 2. Размещение WebApp
-
-⚠️ **Важно:** WebApp должен быть доступен по **HTTPS URL**! Telegram не поддерживает `data:` URLs.
-
-**📖 [Подробная инструкция → DEPLOYMENT.md](./DEPLOYMENT.md)**
-
-**Быстрые опции:**
-- **GitHub Pages** - бесплатно, просто, рекомендуется
-- **Vercel/Netlify** - бесплатно для статики
-- **Ngrok** - для локальной разработки и тестирования
-- **Свой сервер** - с SSL сертификатом
-
-### 3. aiogram: Отправка кнопки с WebApp
-
-```python
-from aiogram.types import InlineKeyboardMarkup, InlineKeyboardButton, WebAppInfo
-
-@router.message(Command("settings"))
-async def show_webapp(message: Message):
-    keyboard = InlineKeyboardMarkup(
-        inline_keyboard=[
-            [
-                InlineKeyboardButton(
-                    text="⚙️ Открыть настройки",
-                    web_app=WebAppInfo(url="https://your-domain.com/webapp.html")
-                )
-            ]
-        ]
-    )
-
-    await message.answer(
-        "Настройте параметры генерации:",
-        reply_markup=keyboard
-    )
-```
-
-### 4. aiogram: Получение данных из WebApp
-
-```python
-@router.message(F.web_app_data)
-async def handle_webapp_data(message: Message):
-    # Получаем данные из WebApp
-    import json
-    data = json.loads(message.web_app_data.data)
-
-    prompt = data['prompt']
-    num_images = int(data['num_images'])
-
-    await message.answer(
-        f"Получены настройки:\n"
-        f"Промпт: {prompt}\n"
-        f"Количество: {num_images}\n\n"
-        f"Генерирую..."
-    )
-
-    # Генерация изображений
-    images = generate_images(prompt, count=num_images)
-
-    # Отправка результата
-    builder = MediaGroupBuilder(caption=f"Результаты для: {prompt}")
-    for img in images:
-        builder.add_photo(media=img)
-
-    await message.answer_media_group(media=builder.build())
-```
-
-### 5. python-telegram-bot: Аналогично
-
-```python
-from telegram import InlineKeyboardMarkup, InlineKeyboardButton, WebAppInfo
-from telegram.ext import MessageHandler, filters
-
-async def show_webapp(update: Update, context: ContextTypes.DEFAULT_TYPE):
-    keyboard = InlineKeyboardMarkup([
-        [
-            InlineKeyboardButton(
-                text="⚙️ Открыть настройки",
-                web_app=WebAppInfo(url="https://your-domain.com/webapp.html")
-            )
-        ]
-    ])
-
-    await update.message.reply_text(
-        "Настройте параметры генерации:",
-        reply_markup=keyboard
-    )
-
-async def handle_webapp_data(update: Update, context: ContextTypes.DEFAULT_TYPE):
-    import json
-    data = json.loads(update.message.web_app_data.data)
-
-    prompt = data['prompt']
-    num_images = int(data['num_images'])
-
-    await update.message.reply_text(f"Генерирую {num_images} изображений...")
-
-    # Генерация и отправка...
-
-# Регистрация
-application.add_handler(CommandHandler("settings", show_webapp))
-application.add_handler(
-    MessageHandler(filters.StatusUpdate.WEB_APP_DATA, handle_webapp_data)
-)
-```
-
-## 🎨 Практическое применение для ИИ
-
-### 1. Интерактивный редактор промптов
-
-```html
-<!-- Редактор с превью -->
-<div id="prompt-editor">
-    <textarea id="prompt">beautiful landscape</textarea>
-    <div id="suggestions">
-        <button onclick="addToPrompt('sunset')">🌅 Sunset</button>
-        <button onclick="addToPrompt('mountains')">⛰️ Mountains</button>
-        <button onclick="addToPrompt('4k, detailed')">✨ HD</button>
-    </div>
-</div>
-
-<script>
-function addToPrompt(text) {
-    let prompt = document.getElementById('prompt');
-    prompt.value += ', ' + text;
-}
-</script>
-```
-
-### 2. Настройка параметров модели
-
-```html
-<div class="settings">
-    <label>Модель:</label>
-    <select id="model">
-        <option value="sd1.5">Stable Diffusion 1.5</option>
-        <option value="sdxl">Stable Diffusion XL</option>
-        <option value="dalle">DALL-E 3</option>
-    </select>
-
-    <label>Steps: <span id="steps-value">30</span></label>
-    <input type="range" id="steps" min="10" max="100" value="30"
-           oninput="document.getElementById('steps-value').innerText = this.value">
-
-    <label>CFG Scale: <span id="cfg-value">7</span></label>
-    <input type="range" id="cfg" min="1" max="20" value="7"
-           oninput="document.getElementById('cfg-value').innerText = this.value">
-
-    <label>Размер:</label>
-    <select id="size">
-        <option value="512x512">512x512</option>
-        <option value="768x768">768x768</option>
-        <option value="1024x1024">1024x1024</option>
-    </select>
-</div>
-
-<button onclick="generateWithSettings()">Генерировать</button>
-
-<script>
-function generateWithSettings() {
-    const settings = {
-        model: document.getElementById('model').value,
-        steps: parseInt(document.getElementById('steps').value),
-        cfg_scale: parseFloat(document.getElementById('cfg').value),
-        size: document.getElementById('size').value,
-        prompt: document.getElementById('prompt').value
-    };
-
-    window.Telegram.WebApp.sendData(JSON.stringify(settings));
-}
-</script>
-```
-
-### 3. Canvas для рисования маски (Inpainting)
-
-```html
-<canvas id="mask-canvas" width="512" height="512"></canvas>
-<div class="tools">
-    <button onclick="setBrushSize(10)">Маленькая кисть</button>
-    <button onclick="setBrushSize(30)">Большая кисть</button>
-    <button onclick="clearCanvas()">Очистить</button>
-</div>
-
-<button onclick="sendMask()">Отправить маску</button>
-
-<script>
-const canvas = document.getElementById('mask-canvas');
-const ctx = canvas.getContext('2d');
-let painting = false;
-let brushSize = 20;
-
-// Рисование маски
-canvas.addEventListener('mousedown', startPaint);
-canvas.addEventListener('mouseup', stopPaint);
-canvas.addEventListener('mousemove', paint);
-
-function startPaint(e) {
-    painting = true;
-    paint(e);
-}
-
-function stopPaint() {
-    painting = false;
-    ctx.beginPath();
-}
-
-function paint(e) {
-    if (!painting) return;
-
-    ctx.lineWidth = brushSize;
-    ctx.lineCap = 'round';
-    ctx.strokeStyle = 'white';
-
-    ctx.lineTo(e.clientX - canvas.offsetLeft, e.clientY - canvas.offsetTop);
-    ctx.stroke();
-    ctx.beginPath();
-    ctx.moveTo(e.clientX - canvas.offsetLeft, e.clientY - canvas.offsetTop);
-}
-
-function sendMask() {
-    // Конвертируем canvas в base64
-    const maskData = canvas.toDataURL('image/png');
-
-    window.Telegram.WebApp.sendData(JSON.stringify({
-        type: 'inpainting',
-        mask: maskData,
-        prompt: document.getElementById('prompt').value
-    }));
-}
-</script>
-```
-
-## 🚀 Запуск примеров
-
-### Шаг 1: Разместите WebApp
-
-⚠️ **Обязательно:** Разместите файл `webapp/index.html` на HTTPS сервере.
-
-📖 **[Подробные инструкции в DEPLOYMENT.md](./DEPLOYMENT.md)**
-
-**Быстрый вариант (GitHub Pages):**
-1. Создайте публичный репозиторий на GitHub
-2. Загрузите папку `webapp`
-3. Включите GitHub Pages в Settings
-4. Получите URL: `https://username.github.io/repo-name/webapp/index.html`
-
-### Шаг 2: Запустите бота
+WebApp MUST be on HTTPS server:
 
 ```bash
-# aiogram версия
-export BOT_TOKEN="your_bot_token"
-export WEBAPP_URL="https://your-domain.com/webapp.html"
-python examples/example_06_mini_apps/aiogram/bot.py
+# Option 1: GitHub Pages (recommended)
+# 1. Create repo on GitHub
+# 2. Enable GitHub Pages
+# 3. Upload webapp/ folder
+# URL: https://username.github.io/repo/webapp/index.html
 
-# python-telegram-bot версия
-export BOT_TOKEN="your_bot_token"
-export WEBAPP_URL="https://your-domain.com/webapp.html"
-python examples/example_06_mini_apps/python_telegram_bot/bot.py
+# Option 2: Ngrok (for testing)
+cd webapp
+python -m http.server 8000
+# In another terminal:
+ngrok http 8000
+# Copy HTTPS URL
 ```
 
-### Шаг 3: Используйте
+### Step 2: Configure Bot
 
-1. Отправьте `/start` боту
-2. Нажмите кнопку "Открыть WebApp"
-3. Настройте параметры в веб-интерфейсе
-4. Нажмите "Отправить"
-5. Бот получит данные и обработает их
+```bash
+export BOT_TOKEN="your_token"
+export WEBAPP_URL="https://your-domain.com/webapp/index.html"
+```
 
-## 📝 Команды бота
+### Step 3: Run Bot
 
-- `/start` - Приветствие
-- `/webapp` - Открыть WebApp с настройками
-- `/simple` - Пример простого WebApp
-- `/advanced` - Продвинутый WebApp с canvas
+```bash
+# aiogram
+cd aiogram
+pip install -r requirements.txt
+python bot.py
 
-## 🎓 Что изучили
+# python-telegram-bot
+cd python_telegram_bot
+pip install -r requirements.txt
+python bot.py
+```
 
-1. ✅ Создание Telegram Mini Apps (WebApp)
-2. ✅ Интеграция веб-интерфейса с ботом
-3. ✅ Telegram WebApp API (JavaScript)
-4. ✅ Отправка данных из WebApp в бота
-5. ✅ Практическое применение для настройки ИИ-моделей
+### Step 4: Test in Telegram
 
-## 📚 Дополнительные материалы
+1. Send `/webapp` to your bot
+2. Click button **in keyboard** (bottom of screen)
+3. Fill form in WebApp
+4. Click "🎨 Generate"
+5. Bot will respond with parameters
 
-### Telegram WebApp API методы:
+## 🔧 Code Examples
+
+### aiogram
+
+```python
+from aiogram import Router, F
+from aiogram.types import Message, ReplyKeyboardMarkup, KeyboardButton, WebAppInfo
+
+router = Router()
+
+@router.message(Command("webapp"))
+async def cmd_webapp(message: Message):
+    """Open WebApp"""
+    # IMPORTANT: KeyboardButton, NOT InlineKeyboardButton!
+    keyboard = ReplyKeyboardMarkup(
+        keyboard=[[
+            KeyboardButton(
+                text="⚙️ Open Settings",
+                web_app=WebAppInfo(url=WEBAPP_URL)
+            )
+        ]],
+        resize_keyboard=True
+    )
+
+    await message.answer("Click button below:", reply_markup=keyboard)
+
+@router.message(F.web_app_data)
+async def handle_webapp_data(message: Message):
+    """Handle data from WebApp"""
+    data = json.loads(message.web_app_data.data)
+
+    await message.answer(
+        f"✅ Received data!\n\n"
+        f"Prompt: {data['prompt']}\n"
+        f"Model: {data['model']}"
+    )
+```
+
+### python-telegram-bot
+
+```python
+from telegram import Update, ReplyKeyboardMarkup, KeyboardButton, WebAppInfo
+from telegram.ext import ContextTypes, CommandHandler, MessageHandler, filters
+
+async def webapp_command(update: Update, context: ContextTypes.DEFAULT_TYPE):
+    """Open WebApp"""
+    # IMPORTANT: KeyboardButton, NOT InlineKeyboardButton!
+    keyboard = ReplyKeyboardMarkup(
+        [[
+            KeyboardButton(
+                text="⚙️ Open Settings",
+                web_app=WebAppInfo(url=WEBAPP_URL)
+            )
+        ]],
+        resize_keyboard=True
+    )
+
+    await update.message.reply_text("Click button below:", reply_markup=keyboard)
+
+async def handle_webapp_data(update: Update, context: ContextTypes.DEFAULT_TYPE):
+    """Handle data from WebApp"""
+    data = json.loads(update.message.web_app_data.data)
+
+    await update.message.reply_text(
+        f"✅ Received data!\n\n"
+        f"Prompt: {data['prompt']}\n"
+        f"Model: {data['model']}"
+    )
+
+# Register handlers
+app.add_handler(CommandHandler("webapp", webapp_command))
+app.add_handler(MessageHandler(filters.StatusUpdate.WEB_APP_DATA, handle_webapp_data))
+```
+
+### WebApp (index.html)
 
 ```javascript
-// Основные методы
-Telegram.WebApp.ready();              // Готовность WebApp
-Telegram.WebApp.expand();             // Развернуть на весь экран
-Telegram.WebApp.close();              // Закрыть WebApp
-Telegram.WebApp.sendData(data);       // Отправить данные боту
+// Initialize Telegram WebApp
+let tg = window.Telegram.WebApp;
+tg.ready();
+tg.expand();
 
-// Получение данных пользователя
-Telegram.WebApp.initDataUnsafe.user;  // Данные пользователя
-Telegram.WebApp.initDataUnsafe.query_id; // ID запроса
+// Send data to bot
+function sendData() {
+    const data = {
+        prompt: document.getElementById('prompt').value,
+        model: document.getElementById('model').value,
+        steps: parseInt(document.getElementById('steps').value),
+        // ... other parameters
+    };
 
-// Кнопки
-Telegram.WebApp.MainButton.setText("Отправить");
-Telegram.WebApp.MainButton.show();
-Telegram.WebApp.MainButton.onClick(callback);
+    // Send as JSON string
+    tg.sendData(JSON.stringify(data));
+}
 
-// Тема
-Telegram.WebApp.themeParams.bg_color;        // Цвет фона
-Telegram.WebApp.themeParams.text_color;      // Цвет текста
-Telegram.WebApp.themeParams.button_color;    // Цвет кнопки
+// Setup main button
+tg.MainButton.setText('🎨 Generate');
+tg.MainButton.show();
+tg.MainButton.onClick(sendData);
 ```
 
-### CSS переменные Telegram:
+## 📖 Additional Documentation
 
-```css
-body {
-    background-color: var(--tg-theme-bg-color);
-    color: var(--tg-theme-text-color);
-}
+- **[IMPORTANT_BUTTON_TYPE.md](./IMPORTANT_BUTTON_TYPE.md)** - Critical info about button types
+- **[DEPLOYMENT.md](./DEPLOYMENT.md)** - How to deploy WebApp
+- **[DEBUG.md](./DEBUG.md)** - Debugging guide
+- **[FIX_NO_RESPONSE.md](./FIX_NO_RESPONSE.md)** - Fix "bot doesn't respond"
+- **[TESTING.md](./TESTING.md)** - Testing guide
 
-button {
-    background-color: var(--tg-theme-button-color);
-    color: var(--tg-theme-button-text-color);
-}
+## ⚠️ Common Issues
 
-a {
-    color: var(--tg-theme-link-color);
-}
+### Bot doesn't receive data
+
+**Cause**: Using `InlineKeyboardButton` instead of `KeyboardButton`
+
+**Solution**: Use `ReplyKeyboardMarkup` + `KeyboardButton`. See [IMPORTANT_BUTTON_TYPE.md](./IMPORTANT_BUTTON_TYPE.md)
+
+### WebApp doesn't open
+
+**Cause 1**: Not HTTPS
+**Solution**: Use GitHub Pages, Vercel, or Ngrok
+
+**Cause 2**: data: URL
+**Solution**: Host on real server
+
+### Browser console errors
+
+**Cause**: `telegram-web-app.js` not loaded
+
+**Solution**: Add to `<head>`:
+```html
+<script src="https://telegram.org/js/telegram-web-app.js"></script>
 ```
 
-### Лучшие практики:
+## 🎓 For Students
 
-1. **HTTPS обязательно** - WebApp работает только по HTTPS
-2. **Адаптивность** - делайте responsive design
-3. **Тема Telegram** - используйте CSS переменные для цветов
-4. **Валидация данных** - проверяйте данные на боте
-5. **Feedback** - показывайте прогресс генерации
+**Assignment:**
+1. Create WebApp with AI model parameters
+2. Deploy to GitHub Pages
+3. Implement bot that receives and displays parameters
+4. Test with different configurations
 
-## 🔗 Связанные примеры
+**Report should include:**
+- Screenshots of working WebApp
+- Bot code with handlers
+- WebApp HTML/CSS/JS code
+- Test results with different parameters
 
-- **Example 3** - Reply Keyboard (более простой UI)
-- **Example 4** - FSM States (альтернатива WebApp для простых форм)
-- **Example 8** - Image Generation (куда отправлять результаты из WebApp)
+## 🔗 Useful Links
+
+- [Telegram Mini Apps Documentation](https://core.telegram.org/bots/webapps)
+- [WebApp JavaScript API](https://core.telegram.org/bots/webapps#initializing-mini-apps)
+- [Bot API - WebAppInfo](https://core.telegram.org/bots/api#webappinfo)
+- [GitHub Pages](https://pages.github.com/)
 
 ---
 
-**Совет для ИИ-разработчиков:** WebApp идеально подходит для сложных настроек ИИ-моделей, где нужны слайдеры, превью, canvas. Для простых форм используйте FSM + обычные кнопки.
+**[Русская версия / Russian version](./README_RU.md)**

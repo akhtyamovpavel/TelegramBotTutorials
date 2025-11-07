@@ -1,161 +1,164 @@
-# Example 11: Разворачивание бота через WebHook
+# Example 11: Bot Deployment with WebHook
 
-## 🎯 Что нового в этом примере
+**[Русская версия / Russian version](./README_RU.md)**
 
-В предыдущих примерах (1-10) мы использовали **polling** - бот периодически опрашивает Telegram API на наличие новых сообщений.
+## 🎯 What's New in This Example
 
-**Новые концепции:**
-- **WebHook** - Telegram сам отправляет обновления на ваш сервер
-- **Production deployment** - правильное разворачивание бота
-- **SSL/HTTPS** - настройка защищенного соединения
-- **Reverse proxy** - nginx перед приложением
-- **Docker** - контейнеризация бота
+In previous examples (1-10), we used **polling** - the bot periodically queries the Telegram API for new messages.
+
+**New concepts:**
+- **WebHook** - Telegram pushes updates directly to your server
+- **Production deployment** - proper bot deployment
+- **SSL/HTTPS** - secure connection setup
+- **Reverse proxy** - nginx in front of your application
+- **Docker** - bot containerization
 
 ## 📚 Polling vs WebHook
 
-### Polling (примеры 1-10)
+### Polling (Examples 1-10)
 
 ```python
-# Бот опрашивает Telegram каждые N секунд
+# Bot queries Telegram every N seconds
 while True:
-    updates = bot.get_updates()  # Запрос к Telegram API
+    updates = bot.get_updates()  # Request to Telegram API
     process(updates)
     time.sleep(1)
 ```
 
-**Преимущества:**
-- ✅ Просто настроить - не нужен публичный IP
-- ✅ Работает на локальном компьютере
-- ✅ Не нужен SSL сертификат
-- ✅ Легко отлаживать
+**Advantages:**
+- ✅ Easy to set up - no public IP needed
+- ✅ Works on local computer
+- ✅ No SSL certificate required
+- ✅ Easy to debug
 
-**Недостатки:**
-- ❌ Постоянные запросы к API (нагрузка)
-- ❌ Задержка в получении сообщений
-- ❌ Потребляет ресурсы процессора
-- ❌ Не подходит для production
+**Disadvantages:**
+- ❌ Constant API requests (load)
+- ❌ Message delivery delay
+- ❌ CPU resource consumption
+- ❌ Not suitable for production
 
-### WebHook (этот пример)
+### WebHook (This Example)
 
 ```python
-# Telegram отправляет обновления на ваш сервер
+# Telegram sends updates to your server
 @app.post("/webhook")
 async def webhook(update: Update):
     await process(update)
     return {"ok": True}
 ```
 
-**Преимущества:**
-- ✅ Мгновенное получение обновлений
-- ✅ Меньше нагрузки на API и сервер
+**Advantages:**
+- ✅ Instant update delivery
+- ✅ Less load on API and server
 - ✅ Production-ready
-- ✅ Масштабируемо
+- ✅ Scalable
 
-**Недостатки:**
-- ❌ Нужен публичный домен с HTTPS
-- ❌ Требуется SSL сертификат
-- ❌ Сложнее настроить
-- ❌ Не работает на localhost
+**Disadvantages:**
+- ❌ Requires public domain with HTTPS
+- ❌ SSL certificate needed
+- ❌ More complex setup
+- ❌ Doesn't work on localhost
 
-## 📊 Когда использовать что?
+## 📊 When to Use What?
 
-| Сценарий | Рекомендация |
-|----------|--------------|
-| **Разработка и тестирование** | Polling |
-| **Локальный компьютер** | Polling |
-| **Production сервер** | WebHook |
-| **Высокая нагрузка (>1000 пользователей)** | WebHook |
-| **Несколько ботов на одном сервере** | WebHook |
+| Scenario | Recommendation |
+|----------|----------------|
+| **Development and testing** | Polling |
+| **Local computer** | Polling |
+| **Production server** | WebHook |
+| **High load (>1000 users)** | WebHook |
+| **Multiple bots on one server** | WebHook |
 
-## 🔧 Минимальные требования для WebHook
+## 🔧 Minimum Requirements for WebHook
 
-1. **Публичный IP или домен**
+1. **Public IP or domain**
    - ✅ example.com
    - ✅ bot.example.com
    - ❌ localhost
    - ❌ 192.168.x.x
 
-2. **HTTPS с валидным SSL сертификатом**
-   - ✅ Let's Encrypt (бесплатно)
-   - ✅ Cloudflare (бесплатно)
-   - ❌ Self-signed сертификаты (не работают)
+2. **HTTPS with valid SSL certificate**
+   - ✅ Let's Encrypt (free)
+   - ✅ Cloudflare (free)
+   - ❌ Self-signed certificates (won't work)
 
-3. **Поддерживаемый порт**
-   - ✅ 443 (стандартный HTTPS)
-   - ✅ 80, 88, 8443 (альтернативные)
-   - ❌ Другие порты не поддерживаются Telegram
+3. **Supported port**
+   - ✅ 443 (standard HTTPS)
+   - ✅ 80, 88, 8443 (alternative)
+   - ❌ Other ports not supported by Telegram
 
-4. **Веб-сервер (опционально, но рекомендуется)**
-   - nginx или Apache как reverse proxy
-   - Обрабатывает SSL
-   - Балансировка нагрузки
+4. **Web server (optional but recommended)**
+   - nginx or Apache as reverse proxy
+   - Handles SSL
+   - Load balancing
 
-## 📁 Структура примера
+## 📁 Example Structure
 
 ```
 example_11_webhook/
-├── README.md                          # Эта документация
-├── DEPLOYMENT.md                      # Инструкции по деплою
-├── COMPARISON.md                      # Подробное сравнение polling vs webhook
+├── README.md                          # This documentation
+├── DEPLOYMENT.md                      # Deployment instructions
+├── COMPARISON.md                      # Detailed polling vs webhook comparison
+├── QUICKSTART.md                      # 5-minute quick start
 ├── aiogram/
-│   ├── bot_webhook.py                 # Бот на aiogram с webhook
+│   ├── bot_webhook.py                 # Bot with aiogram
 │   └── requirements.txt
 ├── python_telegram_bot/
-│   ├── bot_webhook.py                 # Бот на python-telegram-bot
+│   ├── bot_webhook.py                 # Bot with python-telegram-bot
 │   └── requirements.txt
 ├── nginx_config/
-│   ├── simple.conf                    # Простая конфигурация nginx
-│   └── advanced.conf                  # Продвинутая конфигурация
+│   ├── simple.conf                    # Simple nginx config
+│   └── advanced.conf                  # Advanced configuration
 └── docker/
-    ├── Dockerfile                     # Контейнеризация бота
-    ├── docker-compose.yml             # Docker Compose для запуска
-    └── nginx.conf                     # Nginx в Docker
+    ├── Dockerfile                     # Bot containerization
+    ├── docker-compose.yml             # Docker Compose setup
+    └── nginx.conf                     # Nginx in Docker
 ```
 
-## 🚀 Быстрый старт
+## 🚀 Quick Start
 
-### Локальное тестирование (с ngrok)
+### Local Testing (with ngrok)
 
 ```bash
-# Терминал 1: Запустите бота
+# Terminal 1: Run the bot
 cd aiogram
 pip install -r requirements.txt
 export BOT_TOKEN="your_token_here"
 python bot_webhook.py
 
-# Терминал 2: Создайте туннель
+# Terminal 2: Create tunnel
 ngrok http 8000
 
-# Скопируйте HTTPS URL из ngrok (например: https://abc123.ngrok-free.app)
-# Бот автоматически установит webhook
+# Copy HTTPS URL from ngrok (e.g., https://abc123.ngrok-free.app)
+# Bot will automatically set webhook
 ```
 
-### Production (на сервере)
+### Production (on server)
 
 ```bash
-# 1. Клонируйте репозиторий на сервер
+# 1. Clone repository on server
 git clone <repo>
 cd example_11_webhook
 
-# 2. Установите зависимости
+# 2. Install dependencies
 pip install -r aiogram/requirements.txt
 
-# 3. Настройте переменные окружения
+# 3. Set environment variables
 export BOT_TOKEN="your_token_here"
 export WEBHOOK_URL="https://your-domain.com/webhook"
 export WEBHOOK_PATH="/webhook"
 export WEBAPP_HOST="0.0.0.0"
 export WEBAPP_PORT="8000"
 
-# 4. Настройте nginx (см. nginx_config/)
+# 4. Configure nginx (see nginx_config/)
 sudo cp nginx_config/simple.conf /etc/nginx/sites-available/bot
 sudo ln -s /etc/nginx/sites-available/bot /etc/nginx/sites-enabled/
 sudo nginx -t && sudo systemctl reload nginx
 
-# 5. Получите SSL сертификат
+# 5. Get SSL certificate
 sudo certbot --nginx -d your-domain.com
 
-# 6. Запустите бота
+# 6. Run the bot
 python aiogram/bot_webhook.py
 ```
 
@@ -166,74 +169,74 @@ cd docker
 docker-compose up -d
 ```
 
-См. [DEPLOYMENT.md](./DEPLOYMENT.md) для подробных инструкций.
+See [DEPLOYMENT.md](./DEPLOYMENT.md) for detailed instructions.
 
-## 🔍 Как работает WebHook?
+## 🔍 How WebHook Works
 
-### 1. Регистрация webhook
+### 1. Register webhook
 
 ```python
-# Бот сообщает Telegram куда отправлять обновления
+# Bot tells Telegram where to send updates
 await bot.set_webhook(
     url="https://your-domain.com/webhook",
     drop_pending_updates=True
 )
 ```
 
-### 2. Telegram отправляет обновления
+### 2. Telegram sends updates
 
 ```
 User → Telegram → HTTPS POST → Your Server → Bot
 ```
 
-### 3. Обработка обновления
+### 3. Process update
 
 ```python
 @app.post("/webhook")
 async def webhook_handler(update: Update):
-    # Обработать обновление
+    # Process update
     await dp.feed_update(bot, update)
     return Response(status_code=200)
 ```
 
-### 4. Ответ Telegram
+### 4. Response to Telegram
 
-Бот **обязан** ответить в течение 60 секунд:
-- `200 OK` - обновление обработано
-- `4xx/5xx` - ошибка, Telegram повторит запрос
+Bot **must** respond within 60 seconds:
+- `200 OK` - update processed
+- `4xx/5xx` - error, Telegram will retry
 
-## 📋 Checklist для WebHook
+## 📋 WebHook Checklist
 
-- [ ] Есть публичный домен с HTTPS
-- [ ] SSL сертификат валиден (не self-signed)
-- [ ] Порт 443 или другой поддерживаемый
-- [ ] Firewall разрешает входящие соединения
-- [ ] Webhook URL доступен из интернета
-- [ ] Бот отвечает на запросы в течение 60 секунд
-- [ ] Nginx настроен (если используется)
-- [ ] Логирование работает
-- [ ] Мониторинг настроен
+- [ ] Have public domain with HTTPS
+- [ ] Valid SSL certificate (not self-signed)
+- [ ] Port 443 or other supported port
+- [ ] Firewall allows incoming connections
+- [ ] Webhook URL accessible from internet
+- [ ] Bot responds to requests within 60 seconds
+- [ ] Nginx configured (if using)
+- [ ] Logging works
+- [ ] Monitoring configured
 
-## 🔐 Безопасность
+## 🔐 Security
 
-### 1. Проверка secret token
+### 1. Secret token verification
 
 ```python
-# При установке webhook указываем секретный токен
+# Set secret token when registering webhook
 await bot.set_webhook(
     url="https://your-domain.com/webhook",
     secret_token="your_secret_here"
 )
 
-# В обработчике проверяем токен
+# Verify token in handler
 if request.headers.get("X-Telegram-Bot-Api-Secret-Token") != SECRET_TOKEN:
     return Response(status_code=403)
 ```
 
-### 2. Ограничение доступа
+### 2. IP restriction
 
 ```nginx
-# nginx.conf - разрешить только IP Telegram
+# nginx.conf - allow only Telegram IPs
 location /webhook {
     allow 149.154.160.0/20;
     allow 91.108.4.0/22;
@@ -243,29 +246,30 @@ location /webhook {
 }
 ```
 
-## 📖 Дополнительные материалы
+## 📖 Additional Materials
 
-- **[DEPLOYMENT.md](./DEPLOYMENT.md)** - подробные инструкции по деплою на разные платформы
-- **[COMPARISON.md](./COMPARISON.md)** - детальное сравнение polling vs webhook
-- **[nginx_config/](./nginx_config/)** - примеры конфигураций nginx
-- **[docker/](./docker/)** - Docker и Docker Compose примеры
+- **[DEPLOYMENT.md](./DEPLOYMENT.md)** - detailed deployment instructions for various platforms
+- **[COMPARISON.md](./COMPARISON.md)** - detailed polling vs webhook comparison
+- **[QUICKSTART.md](./QUICKSTART.md)** - 5-minute quick start guide
+- **[nginx_config/](./nginx_config/)** - nginx configuration examples
+- **[docker/](./docker/)** - Docker and Docker Compose examples
 
-## 🎓 Для студентов
+## 🎓 For Students
 
-**Задание:**
-1. Разверните бота с webhook на VPS (DigitalOcean, Linode, Hetzner)
-2. Настройте nginx как reverse proxy
-3. Получите SSL сертификат через Let's Encrypt
-4. Настройте мониторинг и логирование
-5. Добавьте systemd service для автозапуска
+**Assignment:**
+1. Deploy bot with webhook on VPS (DigitalOcean, Linode, Hetzner)
+2. Configure nginx as reverse proxy
+3. Get SSL certificate via Let's Encrypt
+4. Set up monitoring and logging
+5. Add systemd service for auto-start
 
-**Отчет должен включать:**
-- Скриншоты работающего бота
-- Конфигурационные файлы (nginx, systemd)
-- Логи работы webhook
-- Результаты `curl` запросов к webhook URL
+**Report should include:**
+- Screenshots of working bot
+- Configuration files (nginx, systemd)
+- Webhook operation logs
+- Results of `curl` requests to webhook URL
 
-## 🔗 Полезные ссылки
+## 🔗 Useful Links
 
 - [Telegram Bot API - Using Webhook](https://core.telegram.org/bots/api#setwebhook)
 - [Telegram Bot API - IP Ranges](https://core.telegram.org/bots/webhooks#the-short-version)
@@ -273,46 +277,50 @@ location /webhook {
 - [Nginx Documentation](https://nginx.org/en/docs/)
 - [Docker Documentation](https://docs.docker.com/)
 
-## 💡 Советы
+## 💡 Tips
 
-1. **Начните с ngrok** - протестируйте локально перед деплоем
-2. **Используйте Let's Encrypt** - бесплатные SSL сертификаты
-3. **Настройте nginx** - не подключайте бот напрямую к интернету
-4. **Логируйте всё** - упрощает отладку проблем
-5. **Мониторьте здоровье** - используйте healthcheck endpoint
+1. **Start with ngrok** - test locally before deploying
+2. **Use Let's Encrypt** - free SSL certificates
+3. **Configure nginx** - don't expose bot directly to internet
+4. **Log everything** - makes debugging easier
+5. **Monitor health** - use healthcheck endpoint
 
-## ⚠️ Частые проблемы
+## ⚠️ Common Issues
 
-### Webhook не работает
+### Webhook not working
 
 ```bash
-# Проверьте webhook info
+# Check webhook info
 curl https://api.telegram.org/bot<TOKEN>/getWebhookInfo
 
-# Удалите webhook
+# Delete webhook
 curl https://api.telegram.org/bot<TOKEN>/deleteWebhook
 
-# Установите заново
+# Set again
 curl -X POST https://api.telegram.org/bot<TOKEN>/setWebhook \
   -d url=https://your-domain.com/webhook
 ```
 
-### SSL ошибки
+### SSL errors
 
 ```bash
-# Проверьте сертификат
+# Check certificate
 openssl s_client -connect your-domain.com:443
 
-# Проверьте срок действия
+# Check expiration
 echo | openssl s_client -servername your-domain.com -connect your-domain.com:443 2>/dev/null | openssl x509 -noout -dates
 ```
 
-### Nginx не пробрасывает запросы
+### Nginx not forwarding requests
 
 ```bash
-# Проверьте конфигурацию
+# Check configuration
 sudo nginx -t
 
-# Посмотрите логи
+# View logs
 sudo tail -f /var/log/nginx/error.log
 ```
+
+---
+
+**[Русская версия / Russian version](./README_RU.md)**
